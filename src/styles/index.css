@@ -343,3 +343,34 @@ input, select, textarea { font-size: 14px; font-family: inherit; }
 .btn-status:hover { border-color: #2563eb; color: #2563eb; }
 .btn-status.active { background: #2563eb; color: #fff; border-color: #2563eb; }
 .btn-status.small { padding: 4px 10px; font-size: 12px; }
+
+/* ════ Confirm Modal ════ */
+.modal.modal-confirm { max-width: 380px; text-align: center; }
+.confirm-icon {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: #fef9c3; color: #a16207;
+  font-size: 24px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+}
+.modal.modal-confirm h2 { margin-bottom: 10px; }
+.confirm-message { color: #64748b; font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
+.modal.modal-confirm .modal-actions { justify-content: center; }
+.btn-delete-confirm {
+  background: #dc2626; color: #fff; padding: 8px 22px;
+  border-radius: 8px; font-weight: 600; transition: all .2s;
+}
+.btn-delete-confirm:hover { background: #b91c1c; }
+
+/* ════ Error Modal ════ */
+.modal.modal-error { max-width: 380px; text-align: center; }
+.error-icon {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: #fee2e2; color: #dc2626;
+  font-size: 24px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+}
+.modal.modal-error h2 { margin-bottom: 10px; }
+.error-message { color: #64748b; font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
+.modal.modal-error .modal-actions { justify-content: center; }

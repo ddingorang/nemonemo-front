@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import client from '../../api/client.js'
 import DataTable from '../../components/DataTable.jsx'
+import ConfirmModal from '../../components/ConfirmModal.jsx'
 
 const STATUS_LABELS = { AVAILABLE: '이용 가능', OCCUPIED: '사용 중', RESERVED: '예약됨', MAINTENANCE: '점검 중' }
 const STATUS_CLASS = { AVAILABLE: 'badge-green', OCCUPIED: 'badge-orange', RESERVED: 'badge-yellow', MAINTENANCE: 'badge-gray' }
@@ -15,6 +16,7 @@ export default function UnitsPage() {
   const [modal, setModal] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [statusModal, setStatusModal] = useState(null)
+  const [confirmModal, setConfirmModal] = useState(null)
 
   async function load() {
     const res = await client.get('/admin/units')
@@ -38,10 +40,15 @@ export default function UnitsPage() {
     setModal(null); load()
   }
 
-  async function deactivate(row) {
-    if (!confirm(`유닛 ${row.unitNumber}을 비활성화할까요?`)) return
-    await client.delete(`/admin/units/${row.id}`)
-    load()
+  function deactivate(row) {
+    setConfirmModal({
+      message: `유닛 ${row.unitNumber}의 계약을 초기화할까요?`,
+      onConfirm: async () => {
+        await client.delete(`/admin/units/${row.id}`)
+        setConfirmModal(null)
+        load()
+      },
+    })
   }
 
   async function changeStatus(unitId, status) {
@@ -106,6 +113,14 @@ export default function UnitsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {confirmModal && (
+        <ConfirmModal
+          message={confirmModal.message}
+          onConfirm={confirmModal.onConfirm}
+          onCancel={() => setConfirmModal(null)}
+        />
       )}
 
       {statusModal && (

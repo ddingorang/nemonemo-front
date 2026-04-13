@@ -15,7 +15,10 @@ client.interceptors.response.use(
     if (err.response?.status === 401) {
       localStorage.removeItem('token')
       window.location.href = '/admin/login'
+      return Promise.reject(err)
     }
+    const message = err.response?.data?.message || '알 수 없는 오류가 발생했습니다.'
+    window.dispatchEvent(new CustomEvent('app:error', { detail: message }))
     return Promise.reject(err)
   },
 )

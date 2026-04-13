@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import client from '../../api/client.js'
 import DataTable from '../../components/DataTable.jsx'
+import ConfirmModal from '../../components/ConfirmModal.jsx'
 
 const STATUS_LABELS = { ACTIVE: '활성', EXPIRED: '만료', TERMINATED: '해지' }
 const STATUS_CLASS = { ACTIVE: 'badge-green', EXPIRED: 'badge-gray', TERMINATED: 'badge-orange' }
@@ -13,15 +14,20 @@ const EMPTY_FORM = {
 
 export default function ContractsPage() {
   const [contracts, setContracts] = useState([])
+  const [units, setUnits] = useState([])
   const [modal, setModal] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
+  const [confirmModal, setConfirmModal] = useState(null)
 
   async function load() {
     const res = await client.get('/admin/contracts')
     setContracts(res.data)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    client.get('/admin/units').then((res) => setUnits(res.data))
+  }, [])
 
   function set(k, v) { setForm((p) => ({ ...p, [k]: v })) }
 
@@ -48,6 +54,7 @@ export default function ContractsPage() {
 
   async function saveEdit() {
     await client.put(`/admin/contracts/${form.id}`, {
+      unitId: Number(form.unitId),
       customerName: form.customerName, customerPhone: form.customerPhone,
       customerEmail: form.customerEmail, startDate: form.startDate,
       endDate: form.endDate, monthlyPrice: Number(form.monthlyPrice),
@@ -55,10 +62,15 @@ export default function ContractsPage() {
     setModal(null); load()
   }
 
-  async function terminate(row) {
-    if (!confirm(`계약 #${row.id}을 해지할까요?`)) return
-    await client.patch(`/admin/contracts/${row.id}/terminate`)
-    load()
+  function terminate(row) {
+    setConfirmModal({
+      message: `계약 #${row.id}을 해지할까요?`,
+      onConfirm: async () => {
+        await client.patch(`/admin/contracts/${row.id}/terminate`)
+        setConfirmModal(null)
+        load()
+      },
+    })
   }
 
   const columns = [
@@ -97,16 +109,31 @@ export default function ContractsPage() {
         )}
       />
 
+      {confirmModal && (
+        <ConfirmModal
+          message={confirmModal.message}
+          onConfirm={confirmModal.onConfirm}
+          onCancel={() => setConfirmModal(null)}
+        />
+      )}
+
       {(modal === 'create' || modal === 'edit') && (
         <div className="modal-overlay" onClick={() => setModal(null)}>
           <div className="modal modal-lg" onClick={(e) => e.stopPropagation()}>
             <h2>{modal === 'create' ? '계약 등록' : '계약 수정'}</h2>
             <div className="form-grid">
+              <label>유닛 *</label>
+              <select value={form.unitId} onChange={(e) => set('unitId', e.target.value)}>
+                <option value="">선택</option>
+                {units
+                  .filter((u) => u.status === 'AVAILABLE' || (modal === 'edit' && u.id === Number(form.unitId)))
+                  .map((u) => (
+                    <option key={u.id} value={u.id}>{u.unitNumber} ({u.size})</option>
+                  ))}
+              </select>
               {modal === 'create' && <>
-                <label>유닛 ID *</label>
-                <input type="number" value={form.unitId} onChange={(e) => set('unitId', e.target.value)} />
                 <label>연결 문의 ID</label>
-                <input type="number" value={form.inquiryId} onChange={(e) => set('inquiryId', e.target.value)} placeholder="선택 사항" />
+                <input value={form.inquiryId} onChange={(e) => set('inquiryId', e.target.value)} placeholder="선택 사항" />
               </>}
               <label>고객명 *</label>
               <input value={form.customerName} onChange={(e) => set('customerName', e.target.value)} />
