@@ -80,7 +80,7 @@ export default function InquiryPage() {
                 <option value="">사이즈로만 문의하기</option>
                 {units.map((u) => (
                   <option key={u.id} value={u.id}>
-                    {u.unitNumber} ({u.size}, {u.areaSqm}㎡)
+                    {u.unitNumber} ({u.size})
                   </option>
                 ))}
               </select>

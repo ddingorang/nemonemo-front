@@ -9,7 +9,7 @@ const STATUS_CLASS = { AVAILABLE: 'bg-green-100 text-green-700', OCCUPIED: 'bg-o
 const SIZES = ['S', 'M', 'L', 'XL']
 const STATUSES = ['AVAILABLE', 'OCCUPIED', 'RESERVED', 'MAINTENANCE']
 
-const EMPTY_FORM = { warehouseId: 1, unitNumber: '', size: 'S', areaSqm: '', floor: '', zone: '', monthlyPrice: '' }
+const EMPTY_FORM = { warehouseId: 1, unitNumber: '', size: 'S', zone: '', monthlyPrice: '' }
 
 export default function UnitsPage() {
   const [units, setUnits] = useState([])
@@ -31,12 +31,12 @@ export default function UnitsPage() {
   function openEdit(row) { setForm({ ...row, warehouseId: row.warehouseId ?? 1 }); setModal('edit') }
 
   async function saveCreate() {
-    await client.post('/admin/units', { ...form, areaSqm: Number(form.areaSqm), floor: Number(form.floor) || null, monthlyPrice: Number(form.monthlyPrice) })
+    await client.post('/admin/units', { ...form, monthlyPrice: Number(form.monthlyPrice) })
     setModal(null); load()
   }
 
   async function saveEdit() {
-    await client.put(`/admin/units/${form.id}`, { unitNumber: form.unitNumber, areaSqm: Number(form.areaSqm), floor: Number(form.floor) || null, zone: form.zone, monthlyPrice: Number(form.monthlyPrice) })
+    await client.put(`/admin/units/${form.id}`, { unitNumber: form.unitNumber, zone: form.zone, monthlyPrice: Number(form.monthlyPrice) })
     setModal(null); load()
   }
 
@@ -79,7 +79,6 @@ export default function UnitsPage() {
         columns={columns}
         rows={units}
         onEdit={openEdit}
-        onDelete={deactivate}
         actions={(row) => (
           <button className="px-2.5 py-1 rounded-md text-[12px] font-semibold mr-1 bg-slate-100 text-slate-600 hover:bg-slate-200" onClick={() => setStatusModal(row)}>상태 변경</button>
         )}
@@ -106,20 +105,6 @@ export default function UnitsPage() {
                   {SIZES.map((s) => <option key={s}>{s}</option>)}
                 </select>
               </>}
-              <label className="text-[13px] font-semibold text-slate-700">면적(㎡)</label>
-              <input 
-                type="number" 
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
-                value={form.areaSqm} 
-                onChange={(e) => set('areaSqm', e.target.value)} 
-              />
-              <label className="text-[13px] font-semibold text-slate-700">층</label>
-              <input 
-                type="number" 
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
-                value={form.floor} 
-                onChange={(e) => set('floor', e.target.value)} 
-              />
               <label className="text-[13px] font-semibold text-slate-700">구역</label>
               <input 
                 className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
@@ -136,6 +121,9 @@ export default function UnitsPage() {
               />
             </div>
             <div className="flex justify-end gap-2 mt-2">
+              {modal === 'edit' && (
+                <button className="btn-delete btn-sm mr-auto" onClick={() => { setModal(null); deactivate(form) }}>삭제</button>
+              )}
               <button className="btn-ghost" onClick={() => setModal(null)}>취소</button>
               <button className="btn-primary" onClick={modal === 'create' ? saveCreate : saveEdit}>저장</button>
             </div>
