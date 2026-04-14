@@ -10,12 +10,26 @@ const SIZE_DIMS = { XS: '115 × 105 × 115 cm', S: '115 × 105 × 240 cm', M: '1
 const NAVY = '#1a2238'
 const NAVY_DEEP = '#111827'
 
-function unitColor(unit) {
-  if (unit.status === 'AVAILABLE') return 'bg-emerald-400'
-  if (unit.status === 'OCCUPIED' && unit.expiringSoon) return 'bg-amber-400'
-  if (unit.status === 'OCCUPIED') return 'bg-orange-500'
-  if (unit.status === 'RESERVED') return 'bg-orange-300'
-  return 'bg-slate-300'
+const SIZE_COLOR = {
+  XS: '#818cf8',
+  S:  '#4ade80',
+  M:  '#38bdf8',
+  L:  '#fb923c',
+  XL: '#f43f5e',
+}
+
+// 상태별 오버레이 색상 (사이즈 색상 위에 씌움)
+function statusOverlay(unit) {
+  if (unit.status === 'AVAILABLE') return null
+  if (unit.status === 'OCCUPIED' && unit.expiringSoon) return 'rgba(0,0,0,0.22)'
+  if (unit.status === 'OCCUPIED') return 'rgba(0,0,0,0.35)'
+  if (unit.status === 'RESERVED') return 'rgba(255,255,255,0.32)'
+  return 'rgba(15,23,42,0.58)' // MAINTENANCE
+}
+
+// 만료 임박 여부 (테두리로 강조)
+function isExpiring(unit) {
+  return unit.status === 'OCCUPIED' && unit.expiringSoon
 }
 
 function unitColorLabel(unit) {
@@ -24,6 +38,15 @@ function unitColorLabel(unit) {
   if (unit.status === 'OCCUPIED') return '사용 중'
   if (unit.status === 'RESERVED') return '예약됨'
   return '점검 중'
+}
+
+// 툴팁 뱃지용
+function statusBadgeStyle(unit) {
+  if (unit.status === 'AVAILABLE') return { backgroundColor: '#4ade80' }
+  if (unit.status === 'OCCUPIED' && unit.expiringSoon) return { backgroundColor: '#fbbf24' }
+  if (unit.status === 'OCCUPIED') return { backgroundColor: '#f97316' }
+  if (unit.status === 'RESERVED') return { backgroundColor: '#fdba74' }
+  return { backgroundColor: '#cbd5e1' }
 }
 
 const FEATURES = [
@@ -177,37 +200,60 @@ export default function HomePage() {
               <p className="text-[12px] font-bold tracking-widest uppercase mb-1.5" style={{ color: '#f97316' }}>AVAILABILITY</p>
               <h2 className="text-[26px] font-black text-slate-900 tracking-tight">실시간 창고 현황</h2>
             </div>
-            <div className="flex items-center gap-5 text-[13px] text-slate-500 flex-wrap">
-              <span className="flex items-center gap-2">
-                <span className="inline-block w-3.5 h-3.5 rounded-sm bg-emerald-400 shrink-0" />
-                이용 가능 <strong className="text-slate-700 ml-0.5">({stats.available})</strong>
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="inline-block w-3.5 h-3.5 rounded-sm bg-orange-500 shrink-0" />
-                사용 중 <strong className="text-slate-700 ml-0.5">({stats.occupied})</strong>
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="inline-block w-3.5 h-3.5 rounded-sm bg-amber-400 shrink-0" />
-                만료 임박 <strong className="text-slate-700 ml-0.5">({stats.expiring})</strong>
-              </span>
+            <div className="flex flex-col items-end gap-2.5">
+              {/* 사이즈 색상 범례 */}
+              <div className="flex items-center gap-2 flex-wrap justify-end">
+                {Object.entries(SIZE_COLOR).map(([size, color]) => (
+                  <span key={size} className="flex items-center gap-1.5 text-[12px] text-slate-500">
+                    <span className="inline-block w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: color }} />
+                    {size}
+                  </span>
+                ))}
+              </div>
+              {/* 상태 범례 */}
+              <div className="flex items-center gap-3 text-[12px] text-slate-400 flex-wrap justify-end">
+                <span className="flex items-center gap-1.5">
+                  <span className="inline-block w-3 h-3 rounded-sm bg-slate-300 shrink-0" />이용 가능 <strong className="text-slate-500">({stats.available})</strong>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="inline-block w-3 h-3 rounded-sm bg-slate-500 shrink-0" />사용 중 <strong className="text-slate-500">({stats.occupied})</strong>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="inline-block w-3 h-3 rounded-sm bg-slate-300 shrink-0 ring-2 ring-amber-400 ring-offset-1" />만료 임박 <strong className="text-slate-500">({stats.expiring})</strong>
+                </span>
+              </div>
             </div>
           </div>
 
           <div className="rounded-2xl p-6 md:p-8 border-2 border-slate-100" style={{ backgroundColor: '#f8fafc' }}>
             <div className="grid grid-cols-10 gap-2">
-              {units.map((unit) => (
-                <div
-                  key={unit.id}
-                  className={`aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 cursor-default transition-all duration-150 hover:scale-110 hover:shadow-lg hover:z-10 ${unitColor(unit)}`}
-                  style={{ boxShadow: hovered?.id === unit.id ? '0 0 0 2.5px #f97316' : undefined }}
-                  onMouseEnter={() => setHovered(unit)}
-                  onMouseLeave={() => setHovered(null)}
-                  onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
-                >
-                  <span className="text-[13px] font-black text-black/60 leading-none">{unit.size}</span>
-                  <span className="text-[11px] font-bold text-black/40 leading-none">{unit.unitNumber.slice(-2)}</span>
-                </div>
-              ))}
+              {units.map((unit) => {
+                const overlay = statusOverlay(unit)
+                const expiring = isExpiring(unit)
+                return (
+                  <div
+                    key={unit.id}
+                    className="aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 cursor-default transition-all duration-150 hover:scale-110 hover:shadow-lg hover:z-10 relative overflow-hidden"
+                    style={{
+                      backgroundColor: SIZE_COLOR[unit.size],
+                      boxShadow: hovered?.id === unit.id
+                        ? '0 0 0 2.5px #f97316'
+                        : expiring
+                        ? '0 0 0 2.5px #fbbf24'
+                        : undefined,
+                    }}
+                    onMouseEnter={() => setHovered(unit)}
+                    onMouseLeave={() => setHovered(null)}
+                    onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
+                  >
+                    {overlay && (
+                      <div className="absolute inset-0" style={{ backgroundColor: overlay }} />
+                    )}
+                    <span className="relative z-10 text-[13px] font-black leading-none text-white/80">{unit.size}</span>
+                    <span className="relative z-10 text-[11px] font-bold leading-none text-white/60">{unit.unitNumber.slice(-2)}</span>
+                  </div>
+                )
+              })}
             </div>
           </div>
 
@@ -429,7 +475,7 @@ export default function HomePage() {
             월 {Number(hovered.monthlyPrice).toLocaleString()}원
           </span>
           <br />
-          <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-bold mt-1.5 text-black/70 ${unitColor(hovered)}`}>
+          <span className="inline-block px-2 py-0.5 rounded text-[11px] font-bold mt-1.5 text-black/70" style={statusBadgeStyle(hovered)}>
             {unitColorLabel(hovered)}
           </span>
         </div>

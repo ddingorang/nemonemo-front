@@ -3,6 +3,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import client from '../../api/client.js'
 
+const NAVY = '#1a2238'
+const NAVY_DEEP = '#111827'
+
 export default function LoginPage() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ username: '', password: '' })
@@ -21,29 +24,84 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100 flex items-center justify-center p-4">
-      <div className="bg-white p-14 rounded-[20px] w-full max-w-[380px] shadow-[0_1px_3px_rgba(0,0,0,0.04),0_10px_36px_rgba(37,99,235,0.1)] border border-blue-600/10">
-        <div className="text-[30px] font-extrabold text-blue-600 text-center mb-1.5 tracking-tighter">네모네모</div>
-        <p className="text-center text-slate-400 mb-8 text-[13px]">관리자 로그인</p>
-        <form onSubmit={submit}>
-          <input
-            required
-            className="block w-full p-2.5 px-3.5 border-[1.5px] border-slate-200 rounded-lg mb-3 outline-none transition-all focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50"
-            placeholder="아이디"
-            value={form.username}
-            onChange={(e) => setForm((p) => ({ ...p, username: e.target.value }))}
-          />
-          <input
-            required
-            type="password"
-            className="block w-full p-2.5 px-3.5 border-[1.5px] border-slate-200 rounded-lg mb-3 outline-none transition-all focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50"
-            placeholder="비밀번호"
-            value={form.password}
-            onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
-          />
-          {error && <p className="text-red-600 text-[13px] mb-3.5 p-2.5 px-3.5 bg-red-50 rounded-lg border border-red-200">{error}</p>}
-          <button type="submit" className="btn-primary w-full p-[13px] text-[15px]">로그인</button>
-        </form>
+    <div
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      style={{ background: `linear-gradient(135deg, ${NAVY_DEEP} 0%, ${NAVY} 60%, #1e3a5f 100%)` }}
+    >
+      {/* 격자 패턴 */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.035]"
+        style={{
+          backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)',
+          backgroundSize: '40px 40px',
+        }}
+      />
+      {/* 오렌지 글로우 */}
+      <div
+        className="absolute pointer-events-none opacity-10"
+        style={{
+          width: 500, height: 500,
+          top: '-20%', right: '-10%',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, #f97316 0%, transparent 70%)',
+        }}
+      />
+
+      <div className="relative w-full max-w-[380px]">
+        {/* 카드 */}
+        <div
+          className="rounded-2xl overflow-hidden shadow-2xl"
+          style={{ backgroundColor: '#fff', boxShadow: '0 24px 64px rgba(0,0,0,0.4)' }}
+        >
+          {/* 오렌지 상단 바 */}
+          <div className="h-1.5" style={{ backgroundColor: '#f97316' }} />
+
+          <div className="p-10">
+            {/* 로고 */}
+            <div className="flex items-center justify-center gap-2.5 mb-8">
+              <span
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-lg"
+                style={{ backgroundColor: '#f97316' }}
+              >
+                N
+              </span>
+              <div className="text-left">
+                <div className="font-extrabold text-[18px] tracking-tight" style={{ color: NAVY_DEEP }}>네모네모</div>
+                <div className="text-[11px] text-slate-400 font-medium">관리자 로그인</div>
+              </div>
+            </div>
+
+            <form onSubmit={submit}>
+              <input
+                required
+                className="block w-full p-3 px-3.5 border-[1.5px] border-slate-200 rounded-lg mb-3 outline-none transition-all focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/10 bg-slate-50 text-[13px]"
+                placeholder="아이디"
+                value={form.username}
+                onChange={(e) => setForm((p) => ({ ...p, username: e.target.value }))}
+              />
+              <input
+                required
+                type="password"
+                className="block w-full p-3 px-3.5 border-[1.5px] border-slate-200 rounded-lg mb-4 outline-none transition-all focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/10 bg-slate-50 text-[13px]"
+                placeholder="비밀번호"
+                value={form.password}
+                onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
+              />
+              {error && (
+                <p className="text-red-600 text-[13px] mb-4 p-2.5 px-3.5 bg-red-50 rounded-lg border border-red-200">
+                  {error}
+                </p>
+              )}
+              <button type="submit" className="btn-primary w-full p-[13px] text-[15px]">
+                로그인
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <p className="text-center text-[12px] mt-5" style={{ color: 'rgba(255,255,255,0.3)' }}>
+          © 2026 네모네모 스토리지
+        </p>
       </div>
     </div>
   )

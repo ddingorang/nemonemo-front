@@ -7,12 +7,22 @@ import ConfirmModal from '../../components/ConfirmModal.jsx'
 const STATUS_LABELS = { AVAILABLE: '이용 가능', OCCUPIED: '사용 중', RESERVED: '예약됨', MAINTENANCE: '점검 중' }
 const STATUS_CLASS = { AVAILABLE: 'bg-green-100 text-green-700', OCCUPIED: 'bg-orange-100 text-orange-700', RESERVED: 'bg-yellow-100 text-yellow-700', MAINTENANCE: 'bg-slate-100 text-slate-500' }
 const SIZES = ['S', 'M', 'L', 'XL']
+const FILTER_SIZES = ['XS', 'S', 'M', 'L', 'XL']
 const STATUSES = ['AVAILABLE', 'OCCUPIED', 'RESERVED', 'MAINTENANCE']
+
+const SIZE_COLOR = {
+  XS: '#818cf8',
+  S:  '#4ade80',
+  M:  '#38bdf8',
+  L:  '#fb923c',
+  XL: '#f43f5e',
+}
 
 const EMPTY_FORM = { warehouseId: 1, unitNumber: '', size: 'S', zone: '', monthlyPrice: '' }
 
 export default function UnitsPage() {
   const [units, setUnits] = useState([])
+  const [sizeFilter, setSizeFilter] = useState(null)
   const [modal, setModal] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [statusModal, setStatusModal] = useState(null)
@@ -57,7 +67,14 @@ export default function UnitsPage() {
   }
 
   const columns = [
-    { key: 'unitNumber', label: '유닛 번호', sortable: true },
+    { key: 'unitNumber', label: '유닛 번호', sortable: true, render: (v, row) => (
+      <span
+        className="inline-flex items-center px-2.5 py-1 rounded-md text-[12px] font-extrabold text-slate-900"
+        style={{ backgroundColor: SIZE_COLOR[row.size] ?? '#e2e8f0' }}
+      >
+        {v}
+      </span>
+    )},
     { key: 'contractCustomerName', label: '사용 고객', sortable: true, render: (v) => v ?? '-' },
     { key: 'contractCustomerPhone', label: '연락처', render: (v) => v ?? '-' },
     { key: 'contractCreatedAt', label: '계약 일자', sortable: true, render: (v) => v ? v.slice(0, 10) : '-' },
@@ -77,11 +94,32 @@ export default function UnitsPage() {
 
       <DataTable
         columns={columns}
-        rows={units}
+        rows={sizeFilter ? units.filter((u) => u.size === sizeFilter) : units}
         onEdit={openEdit}
         actions={(row) => (
           <button className="px-2.5 py-1 rounded-md text-[12px] font-semibold mr-1 bg-slate-100 text-slate-600 hover:bg-slate-200" onClick={() => setStatusModal(row)}>상태 변경</button>
         )}
+        headerExtra={
+          <div className="flex items-center gap-1">
+            <button
+              className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all border-[1.5px] ${sizeFilter === null ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400 hover:text-slate-700'}`}
+              onClick={() => setSizeFilter(null)}
+            >전체</button>
+            {FILTER_SIZES.map((s) => (
+              <button
+                key={s}
+                className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all border-[1.5px] ${sizeFilter === s ? 'text-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:text-slate-700'}`}
+                style={sizeFilter === s
+                  ? { backgroundColor: SIZE_COLOR[s], borderColor: SIZE_COLOR[s], color: '#1e293b' }
+                  : { borderColor: '#e2e8f0' }
+                }
+                onMouseEnter={(e) => { if (sizeFilter !== s) { e.currentTarget.style.borderColor = SIZE_COLOR[s]; e.currentTarget.style.color = SIZE_COLOR[s] } }}
+                onMouseLeave={(e) => { if (sizeFilter !== s) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '' } }}
+                onClick={() => setSizeFilter(s)}
+              >{s}</button>
+            ))}
+          </div>
+        }
       />
 
       {(modal === 'create' || modal === 'edit') && (
@@ -148,9 +186,9 @@ export default function UnitsPage() {
                 <button
                   key={s}
                   className={`px-4 py-2 rounded-lg border-[1.5px] transition-all text-[13px] font-semibold ${
-                    statusModal.status === s 
-                      ? 'bg-blue-600 text-white border-blue-600' 
-                      : 'bg-white text-slate-700 border-slate-200 hover:border-blue-600 hover:text-blue-600'
+                    statusModal.status === s
+                      ? 'bg-orange-500 text-white border-orange-500'
+                      : 'bg-white text-slate-700 border-slate-200 hover:border-orange-500 hover:text-orange-500'
                   }`}
                   onClick={() => changeStatus(statusModal.id, s)}
                 >

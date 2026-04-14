@@ -42,7 +42,7 @@ export default function DashboardPage() {
 
       <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
         <h2 className="text-lg font-bold mb-6 text-slate-900 flex items-center gap-2">
-          <span className="w-1.5 h-6 bg-blue-600 rounded-full" />
+          <span className="w-1.5 h-6 bg-orange-500 rounded-full" />
           이번 달 만료 예정 계약 ({expiringThisMonth.length}건)
         </h2>
         {expiringThisMonth.length === 0 ? (

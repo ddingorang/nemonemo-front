@@ -92,8 +92,8 @@ export default function InquiryPage() {
                   <label 
                     key={s} 
                     className={`flex items-center gap-2 px-5 py-2.5 border-[1.5px] rounded-xl cursor-pointer transition-all font-medium ${
-                      form.desiredSize === s 
-                        ? 'border-blue-600 bg-blue-50 text-blue-600 font-bold shadow-[0_0_0_2px_rgba(37,99,235,0.12)]' 
+                      form.desiredSize === s
+                        ? 'border-orange-500 bg-orange-50 text-orange-500 font-bold shadow-[0_0_0_2px_rgba(249,115,22,0.12)]'
                         : 'border-slate-200 bg-slate-50 text-slate-500'
                     }`}
                   >

@@ -199,7 +199,7 @@ export default function ContractsPage() {
                     <button
                       key={m}
                       type="button"
-                      className="flex-1 py-1 rounded-md border-[1.5px] border-slate-200 bg-slate-50 text-[12px] font-semibold text-slate-600 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="flex-1 py-1 rounded-md border-[1.5px] border-slate-200 bg-slate-50 text-[12px] font-semibold text-slate-600 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                       disabled={!form.startDate}
                       onClick={() => applyDuration(m)}
                     >
@@ -208,6 +208,7 @@ export default function ContractsPage() {
                   ))}
                 </div>
               </div>
+
               <label className="text-[13px] font-semibold text-slate-700">종료일 *</label>
               <input 
                 type="date" 

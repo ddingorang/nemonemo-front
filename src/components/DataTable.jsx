@@ -1,7 +1,7 @@
 // Created: 2026-04-08 23:14:37
 import { useState } from 'react'
 
-export default function DataTable({ columns, rows, onEdit, onDelete, actions, serverPage, serverTotalPages, serverTotalCount, onServerPageChange }) {
+export default function DataTable({ columns, rows, onEdit, onDelete, actions, serverPage, serverTotalPages, serverTotalCount, onServerPageChange, headerExtra }) {
   const isServerPaged = serverPage !== undefined
 
   const [sortKey, setSortKey] = useState(null)
@@ -38,13 +38,16 @@ export default function DataTable({ columns, rows, onEdit, onDelete, actions, se
 
   return (
     <div className="bg-white rounded-2xl border-[1.5px] border-slate-200 overflow-hidden">
-      <div className="flex items-center justify-between p-3.5 px-5 border-b border-slate-100">
-        <input
-          className="p-2 px-3.5 border-[1.5px] border-slate-200 rounded-lg w-[280px] outline-none transition-all focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50"
-          placeholder="검색..."
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); if (!isServerPaged) setPage(1) }}
-        />
+      <div className="flex items-center justify-between p-3.5 px-5 border-b border-slate-100 gap-3 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          <input
+            className="p-2 px-3.5 border-[1.5px] border-slate-200 rounded-lg w-[240px] outline-none transition-all focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/10 bg-slate-50"
+            placeholder="검색..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); if (!isServerPaged) setPage(1) }}
+          />
+          {headerExtra}
+        </div>
         <span className="text-[13px] text-slate-400">총 {isServerPaged ? (serverTotalCount ?? rows.length) : filtered.length}건</span>
       </div>
 
@@ -56,7 +59,7 @@ export default function DataTable({ columns, rows, onEdit, onDelete, actions, se
                 <th
                   key={col.key}
                   onClick={() => col.sortable !== false && toggleSort(col.key)}
-                  className={`text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 bg-slate-50/50 border-b border-slate-200 whitespace-nowrap tracking-wider uppercase ${col.sortable !== false ? 'cursor-pointer select-none hover:bg-blue-50 hover:text-blue-600' : ''}`}
+                  className={`text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 bg-slate-50/50 border-b border-slate-200 whitespace-nowrap tracking-wider uppercase ${col.sortable !== false ? 'cursor-pointer select-none hover:bg-orange-50 hover:text-orange-500' : ''}`}
                 >
                   {col.label}
                   {sortKey === col.key ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ''}
@@ -90,11 +93,11 @@ export default function DataTable({ columns, rows, onEdit, onDelete, actions, se
 
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-1.5 p-3.5 border-t border-slate-100">
-          <button className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 text-[13px] font-semibold transition-all hover:bg-blue-600 hover:text-white disabled:opacity-35 disabled:cursor-default" disabled={activePage === 1} onClick={() => goPage(1)}>«</button>
-          <button className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 text-[13px] font-semibold transition-all hover:bg-blue-600 hover:text-white disabled:opacity-35 disabled:cursor-default" disabled={activePage === 1} onClick={() => goPage(activePage - 1)}>‹</button>
+          <button className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 text-[13px] font-semibold transition-all hover:bg-orange-500 hover:text-white disabled:opacity-35 disabled:cursor-default" disabled={activePage === 1} onClick={() => goPage(1)}>«</button>
+          <button className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 text-[13px] font-semibold transition-all hover:bg-orange-500 hover:text-white disabled:opacity-35 disabled:cursor-default" disabled={activePage === 1} onClick={() => goPage(activePage - 1)}>‹</button>
           <span className="text-[13px] text-slate-500 px-1.5">{activePage} / {totalPages}</span>
-          <button className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 text-[13px] font-semibold transition-all hover:bg-blue-600 hover:text-white disabled:opacity-35 disabled:cursor-default" disabled={activePage === totalPages} onClick={() => goPage(activePage + 1)}>›</button>
-          <button className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 text-[13px] font-semibold transition-all hover:bg-blue-600 hover:text-white disabled:opacity-35 disabled:cursor-default" disabled={activePage === totalPages} onClick={() => goPage(totalPages)}>»</button>
+          <button className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 text-[13px] font-semibold transition-all hover:bg-orange-500 hover:text-white disabled:opacity-35 disabled:cursor-default" disabled={activePage === totalPages} onClick={() => goPage(activePage + 1)}>›</button>
+          <button className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 text-[13px] font-semibold transition-all hover:bg-orange-500 hover:text-white disabled:opacity-35 disabled:cursor-default" disabled={activePage === totalPages} onClick={() => goPage(totalPages)}>»</button>
         </div>
       )}
     </div>

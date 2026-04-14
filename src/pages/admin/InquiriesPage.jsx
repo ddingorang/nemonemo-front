@@ -80,9 +80,9 @@ export default function InquiriesPage() {
                     <button
                       key={s}
                       className={`px-2.5 py-1 rounded-md text-[12px] font-semibold border-[1.5px] transition-all ${
-                        detailModal.status === s 
-                          ? 'bg-blue-600 text-white border-blue-600' 
-                          : 'bg-white text-slate-700 border-slate-200 hover:border-blue-600 hover:text-blue-600'
+                        detailModal.status === s
+                          ? 'bg-orange-500 text-white border-orange-500'
+                          : 'bg-white text-slate-700 border-slate-200 hover:border-orange-500 hover:text-orange-500'
                       }`}
                       onClick={() => changeStatus(detailModal.id, s)}
                     >
