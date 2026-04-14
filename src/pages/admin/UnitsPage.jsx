@@ -69,7 +69,7 @@ export default function UnitsPage() {
   ]
 
   return (
-    <div className="p-9 px-10 max-w-[1400px]">
+    <div className="p-12 px-14 max-w-[1400px]">
       <div className="flex justify-between items-center mb-7">
         <h1 className="text-[22px] font-extrabold tracking-tight text-slate-900">유닛 관리</h1>
         <button className="btn-primary" onClick={openCreate}>+ 유닛 추가</button>
@@ -127,11 +127,12 @@ export default function UnitsPage() {
                 onChange={(e) => set('zone', e.target.value)} 
               />
               <label className="text-[13px] font-semibold text-slate-700">월 임대료</label>
-              <input 
-                type="number" 
+              <input
+                type="text"
+                inputMode="numeric"
                 className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
-                value={form.monthlyPrice} 
-                onChange={(e) => set('monthlyPrice', e.target.value)} 
+                value={form.monthlyPrice ? Number(form.monthlyPrice).toLocaleString() : ''}
+                onChange={(e) => set('monthlyPrice', e.target.value.replace(/[^0-9]/g, ''))}
               />
             </div>
             <div className="flex justify-end gap-2 mt-2">

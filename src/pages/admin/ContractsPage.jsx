@@ -9,7 +9,7 @@ const STATUS_CLASS = { ACTIVE: 'bg-green-100 text-green-700', EXPIRED: 'bg-slate
 
 const EMPTY_FORM = {
   unitId: '', inquiryId: '', customerName: '', customerPhone: '',
-  customerEmail: '', startDate: '', endDate: '', monthlyPrice: '',
+  customerEmail: '', startDate: '', endDate: '', totalPrice: '',
 }
 
 export default function ContractsPage() {
@@ -31,13 +31,21 @@ export default function ContractsPage() {
 
   function set(k, v) { setForm((p) => ({ ...p, [k]: v })) }
 
+  function applyDuration(months) {
+    if (!form.startDate) return
+    const d = new Date(form.startDate)
+    d.setMonth(d.getMonth() + months)
+    d.setDate(d.getDate() - 1)
+    setForm((p) => ({ ...p, endDate: d.toISOString().slice(0, 10) }))
+  }
+
   function openCreate() { setForm(EMPTY_FORM); setModal('create') }
   function openEdit(row) {
     setForm({
       id: row.id, unitId: row.unitId, inquiryId: row.inquiryId ?? '',
       customerName: row.customerName, customerPhone: row.customerPhone,
       customerEmail: row.customerEmail ?? '', startDate: row.startDate,
-      endDate: row.endDate, monthlyPrice: row.monthlyPrice,
+      endDate: row.endDate, totalPrice: row.totalPrice,
     })
     setModal('edit')
   }
@@ -47,7 +55,7 @@ export default function ContractsPage() {
       ...form,
       unitId: Number(form.unitId),
       inquiryId: form.inquiryId ? Number(form.inquiryId) : null,
-      monthlyPrice: Number(form.monthlyPrice),
+      totalPrice: Number(form.totalPrice),
     })
     setModal(null); load()
   }
@@ -57,7 +65,7 @@ export default function ContractsPage() {
       unitId: Number(form.unitId),
       customerName: form.customerName, customerPhone: form.customerPhone,
       customerEmail: form.customerEmail, startDate: form.startDate,
-      endDate: form.endDate, monthlyPrice: Number(form.monthlyPrice),
+      endDate: form.endDate, totalPrice: Number(form.totalPrice),
     })
     setModal(null); load()
   }
@@ -80,7 +88,7 @@ export default function ContractsPage() {
     { key: 'customerPhone', label: '연락처' },
     { key: 'startDate', label: '시작일', sortable: true },
     { key: 'endDate', label: '종료일', sortable: true },
-    { key: 'monthlyPrice', label: '월 임대료', render: (v) => `${Number(v).toLocaleString()}원` },
+    { key: 'totalPrice', label: '계약 금액', render: (v) => `${Number(v).toLocaleString()}원` },
     {
       key: 'status', label: '상태', sortable: true,
       render: (v, row) => (
@@ -94,7 +102,7 @@ export default function ContractsPage() {
   ]
 
   return (
-    <div className="p-9 px-10 max-w-[1400px]">
+    <div className="p-12 px-14 max-w-[1400px]">
       <div className="flex justify-between items-center mb-7">
         <h1 className="text-[22px] font-extrabold tracking-tight text-slate-900">계약 관리</h1>
         <button className="btn-primary" onClick={openCreate}>+ 계약 등록</button>
@@ -164,12 +172,27 @@ export default function ContractsPage() {
                 onChange={(e) => set('customerEmail', e.target.value)} 
               />
               <label className="text-[13px] font-semibold text-slate-700">시작일 *</label>
-              <input 
-                type="date" 
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
-                value={form.startDate} 
-                onChange={(e) => set('startDate', e.target.value)} 
-              />
+              <div className="flex flex-col gap-1.5">
+                <input
+                  type="date"
+                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                  value={form.startDate}
+                  onChange={(e) => set('startDate', e.target.value)}
+                />
+                <div className="flex gap-1.5">
+                  {[3, 6, 12].map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      className="flex-1 py-1 rounded-md border-[1.5px] border-slate-200 bg-slate-50 text-[12px] font-semibold text-slate-600 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                      disabled={!form.startDate}
+                      onClick={() => applyDuration(m)}
+                    >
+                      {m}개월
+                    </button>
+                  ))}
+                </div>
+              </div>
               <label className="text-[13px] font-semibold text-slate-700">종료일 *</label>
               <input 
                 type="date" 
@@ -177,12 +200,13 @@ export default function ContractsPage() {
                 value={form.endDate} 
                 onChange={(e) => set('endDate', e.target.value)} 
               />
-              <label className="text-[13px] font-semibold text-slate-700">월 임대료 *</label>
-              <input 
-                type="number" 
+              <label className="text-[13px] font-semibold text-slate-700">계약 금액 *</label>
+              <input
+                type="text"
+                inputMode="numeric"
                 className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
-                value={form.monthlyPrice} 
-                onChange={(e) => set('monthlyPrice', e.target.value)} 
+                value={form.totalPrice ? Number(form.totalPrice).toLocaleString() : ''}
+                onChange={(e) => set('totalPrice', e.target.value.replace(/[^0-9]/g, ''))}
               />
             </div>
             <div className="flex justify-end gap-2 mt-2">

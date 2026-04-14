@@ -51,7 +51,7 @@ export default function InquiriesPage() {
   ]
 
   return (
-    <div className="p-9 px-10 max-w-[1400px]">
+    <div className="p-12 px-14 max-w-[1400px]">
       <div className="flex justify-between items-center mb-7">
         <h1 className="text-[22px] font-extrabold tracking-tight text-slate-900">문의 관리</h1>
       </div>

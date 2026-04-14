@@ -14,7 +14,7 @@ export default function DashboardPage() {
   const { unitSummary: s, expiringThisMonth, pendingInquiryCount } = data
 
   return (
-    <div className="p-10 px-12 max-w-[1440px]">
+    <div className="p-12 px-14 max-w-[1440px]">
       <h1 className="text-[26px] font-extrabold tracking-tight text-slate-900 mb-8">대시보드</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
@@ -56,7 +56,7 @@ export default function DashboardPage() {
                   <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">고객명</th>
                   <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">연락처</th>
                   <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">종료일</th>
-                  <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">월 임대료</th>
+                  <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">계약 금액</th>
                 </tr>
               </thead>
               <tbody>
@@ -66,7 +66,7 @@ export default function DashboardPage() {
                     <td className="p-3 px-4 border-b border-slate-100">{c.customerName}</td>
                     <td className="p-3 px-4 border-b border-slate-100">{c.customerPhone}</td>
                     <td className="p-3 px-4 border-b border-slate-100 text-yellow-600 font-semibold">{c.endDate}</td>
-                    <td className="p-3 px-4 border-b border-slate-100">{Number(c.monthlyPrice).toLocaleString()}원</td>
+                    <td className="p-3 px-4 border-b border-slate-100">{Number(c.totalPrice).toLocaleString()}원</td>
                   </tr>
                 ))}
               </tbody>

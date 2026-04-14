@@ -48,13 +48,13 @@ export default function DataTable({ columns, rows, onEdit, onDelete, actions }) 
                 <th
                   key={col.key}
                   onClick={() => col.sortable !== false && toggleSort(col.key)}
-                  className={`text-left p-4 px-5 text-[11px] font-bold text-slate-400 bg-slate-50/50 border-b border-slate-200 whitespace-nowrap tracking-wider uppercase ${col.sortable !== false ? 'cursor-pointer select-none hover:bg-blue-50 hover:text-blue-600' : ''}`}
+                  className={`text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 bg-slate-50/50 border-b border-slate-200 whitespace-nowrap tracking-wider uppercase ${col.sortable !== false ? 'cursor-pointer select-none hover:bg-blue-50 hover:text-blue-600' : ''}`}
                 >
                   {col.label}
                   {sortKey === col.key ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ''}
                 </th>
               ))}
-              {(onEdit || onDelete || actions) && <th className="text-left p-4 px-5 text-[11px] font-bold text-slate-400 bg-slate-50/50 border-b border-slate-200 whitespace-nowrap tracking-wider uppercase">작업</th>}
+              {(onEdit || onDelete || actions) && <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 bg-slate-50/50 border-b border-slate-200 whitespace-nowrap tracking-wider uppercase">작업</th>}
             </tr>
           </thead>
           <tbody>
@@ -63,10 +63,10 @@ export default function DataTable({ columns, rows, onEdit, onDelete, actions }) 
             ) : paged.map((row, i) => (
               <tr key={row.id ?? i} className="hover:bg-slate-50/80 transition-colors">
                 {columns.map((col) => (
-                  <td key={col.key} className="p-4 px-5 border-b border-slate-100 align-middle whitespace-nowrap text-slate-700 font-medium">{col.render ? col.render(row[col.key], row) : (row[col.key] ?? '-')}</td>
+                  <td key={col.key} className="p-2.5 px-4 border-b border-slate-100 align-middle whitespace-nowrap text-slate-700 font-medium">{col.render ? col.render(row[col.key], row) : (row[col.key] ?? '-')}</td>
                 ))}
                 {(onEdit || onDelete || actions) && (
-                  <td className="p-4 px-5 border-b border-slate-100 align-middle whitespace-nowrap">
+                  <td className="p-2.5 px-4 border-b border-slate-100 align-middle whitespace-nowrap">
                     <div className="flex gap-2">
                       {actions && actions(row)}
                       {onEdit && <button className="btn-sm btn-edit" onClick={() => onEdit(row)}>수정</button>}
