@@ -12,9 +12,9 @@ export default function AdminLayout() {
   return (
     <div className="flex min-h-screen">
       <aside className="w-[230px] bg-slate-900 text-slate-400 flex flex-col shrink-0 border-r border-slate-800">
-        <div className="text-[18px] font-extrabold text-white px-6 pt-6.5 pb-5.5 border-b border-slate-800 tracking-tight leading-[1.4]">
+        <NavLink to="/" className="text-[18px] font-extrabold text-white px-6 pt-6 pb-5 border-b border-slate-800 tracking-tight leading-[1.4] hover:text-blue-300 transition-colors block">
           네모네모<br /><span className="text-[11px] font-normal text-slate-600 block mt-[3px]">관리자</span>
-        </div>
+        </NavLink>
         <nav className="flex flex-col p-3.5 flex-1 gap-[3px]">
           <NavLink to="/admin/dashboard" className={({ isActive }) => `px-3.5 py-2.5 text-sm font-medium rounded-lg transition-all ${isActive ? 'text-white bg-blue-600 font-bold' : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'}`}>대시보드</NavLink>
           <NavLink to="/admin/units" className={({ isActive }) => `px-3.5 py-2.5 text-sm font-medium rounded-lg transition-all ${isActive ? 'text-white bg-blue-600 font-bold' : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'}`}>유닛 관리</NavLink>

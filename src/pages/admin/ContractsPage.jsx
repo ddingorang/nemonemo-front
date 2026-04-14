@@ -12,22 +12,33 @@ const EMPTY_FORM = {
   customerEmail: '', startDate: '', endDate: '', totalPrice: '',
 }
 
+const PAGE_SIZE = 20
+
 export default function ContractsPage() {
   const [contracts, setContracts] = useState([])
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalElements, setTotalElements] = useState(0)
   const [units, setUnits] = useState([])
   const [modal, setModal] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [confirmModal, setConfirmModal] = useState(null)
 
-  async function load() {
-    const res = await client.get('/admin/contracts')
-    setContracts(res.data)
+  async function load(p = page) {
+    const res = await client.get('/admin/contracts', { params: { page: p - 1, size: PAGE_SIZE } })
+    const raw = res.data
+    const list = Array.isArray(raw) ? raw : (raw?.content ?? [])
+    const pages = Array.isArray(raw) ? 1 : (raw?.totalPages ?? 1)
+    const total = Array.isArray(raw) ? raw.length : (raw?.totalElements ?? 0)
+    setContracts(list)
+    setTotalPages(pages)
+    setTotalElements(total)
   }
 
   useEffect(() => {
-    load()
-    client.get('/admin/units').then((res) => setUnits(res.data))
-  }, [])
+    load(page)
+    client.get('/admin/units').then((res) => setUnits(Array.isArray(res) ? res : (res?.data ?? res?.content ?? [])))
+  }, [page])
 
   function set(k, v) { setForm((p) => ({ ...p, [k]: v })) }
 
@@ -57,7 +68,7 @@ export default function ContractsPage() {
       inquiryId: form.inquiryId ? Number(form.inquiryId) : null,
       totalPrice: Number(form.totalPrice),
     })
-    setModal(null); load()
+    setModal(null); load(page)
   }
 
   async function saveEdit() {
@@ -67,7 +78,7 @@ export default function ContractsPage() {
       customerEmail: form.customerEmail, startDate: form.startDate,
       endDate: form.endDate, totalPrice: Number(form.totalPrice),
     })
-    setModal(null); load()
+    setModal(null); load(page)
   }
 
   function terminate(row) {
@@ -76,7 +87,7 @@ export default function ContractsPage() {
       onConfirm: async () => {
         await client.patch(`/admin/contracts/${row.id}/terminate`)
         setConfirmModal(null)
-        load()
+        load(page)
       },
     })
   }
@@ -115,6 +126,10 @@ export default function ContractsPage() {
         actions={(row) => row.status === 'ACTIVE' && (
           <button className="btn-sm btn-delete" onClick={() => terminate(row)}>해지</button>
         )}
+        serverPage={page}
+        serverTotalPages={totalPages}
+        serverTotalCount={totalElements}
+        onServerPageChange={(p) => setPage(p)}
       />
 
       {confirmModal && (

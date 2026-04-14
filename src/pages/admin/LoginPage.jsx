@@ -22,7 +22,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100 flex items-center justify-center p-4">
-      <div className="bg-white p-13 rounded-[20px] w-full max-w-[380px] shadow-[0_1px_3px_rgba(0,0,0,0.04),0_10px_36px_rgba(37,99,235,0.1)] border border-blue-600/10">
+      <div className="bg-white p-14 rounded-[20px] w-full max-w-[380px] shadow-[0_1px_3px_rgba(0,0,0,0.04),0_10px_36px_rgba(37,99,235,0.1)] border border-blue-600/10">
         <div className="text-[30px] font-extrabold text-blue-600 text-center mb-1.5 tracking-tighter">네모네모</div>
         <p className="text-center text-slate-400 mb-8 text-[13px]">관리자 로그인</p>
         <form onSubmit={submit}>

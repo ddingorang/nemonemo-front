@@ -25,6 +25,7 @@ function unitColorLabel(unit) {
 export default function HomePage() {
   const [units, setUnits] = useState([])
   const [hovered, setHovered] = useState(null)
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -68,7 +69,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-18 px-10">
+      <section className="py-10 px-10">
         <div className="max-w-[1120px] mx-auto">
           <div className="flex justify-between items-center mb-7 flex-wrap gap-3">
             <h2 className="text-[22px] font-extrabold text-slate-900 tracking-tight">창고 현황</h2>
@@ -96,6 +97,7 @@ export default function HomePage() {
                   className={`aspect-square rounded-lg flex flex-col items-center justify-center gap-0.5 cursor-default transition-all duration-150 border-2 border-transparent hover:scale-110 hover:shadow-lg hover:z-10 hover:border-black/10 ${unitColor(unit)}`}
                   onMouseEnter={() => setHovered(unit)}
                   onMouseLeave={() => setHovered(null)}
+                  onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
                 >
                   <span className="text-[15px] font-extrabold text-black/50">{unit.size}</span>
                   <span className="text-[13px] text-black/40">{unit.unitNumber}</span>
@@ -104,17 +106,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {hovered && (
-            <div className="mt-[18px] bg-slate-900 text-slate-200 px-5 py-3.5 rounded-xl text-[13px] leading-relaxed inline-block border border-slate-800 shadow-xl">
-              <strong>{hovered.unitNumber}</strong> · {SIZE_LABEL[hovered.size]} ({hovered.size})
-              <br />
-              면적 {hovered.areaSqm}㎡ · 월 {Number(hovered.monthlyPrice).toLocaleString()}원
-              <br />
-              <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-bold mt-1 text-black/70 ${unitColor(hovered)}`}>
-                {unitColorLabel(hovered)}
-              </span>
-            </div>
-          )}
         </div>
       </section>
 
@@ -150,6 +141,21 @@ export default function HomePage() {
       <footer className="mt-auto py-8 px-10 text-center border-t border-slate-100 text-slate-400 text-[13px]">
         <p>© 2026 네모네모 스토리지 · 서울 강남구 · 문의: 02-0000-0000</p>
       </footer>
+
+      {hovered && (
+        <div
+          className="fixed z-50 pointer-events-none bg-slate-900 text-slate-200 px-5 py-3.5 rounded-xl text-[13px] leading-relaxed border border-slate-800 shadow-xl"
+          style={{ left: mousePos.x + 16, top: mousePos.y + 16 }}
+        >
+          <strong>{hovered.unitNumber}</strong> · {SIZE_LABEL[hovered.size]} ({hovered.size})
+          <br />
+          면적 {hovered.areaSqm}㎡ · 월 {Number(hovered.monthlyPrice).toLocaleString()}원
+          <br />
+          <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-bold mt-1 text-black/70 ${unitColor(hovered)}`}>
+            {unitColorLabel(hovered)}
+          </span>
+        </div>
+      )}
     </div>
   )
 }
