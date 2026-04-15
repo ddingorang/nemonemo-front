@@ -19,6 +19,7 @@ const SIZE_COLOR = {
 }
 
 const EMPTY_FORM = { warehouseId: 1, unitNumber: '', size: 'S', zone: '', monthlyPrice: '' }
+const EMPTY_CONTRACT_FORM = { contractId: '', unitId: '', customerName: '', customerPhone: '', customerEmail: '', startDate: '', endDate: '', totalPrice: '' }
 
 export default function UnitsPage() {
   const [units, setUnits] = useState([])
@@ -27,6 +28,8 @@ export default function UnitsPage() {
   const [form, setForm] = useState(EMPTY_FORM)
   const [statusModal, setStatusModal] = useState(null)
   const [confirmModal, setConfirmModal] = useState(null)
+  const [contractModal, setContractModal] = useState(null)
+  const [contractForm, setContractForm] = useState(EMPTY_CONTRACT_FORM)
 
   async function load() {
     const res = await client.get('/admin/units')
@@ -36,29 +39,60 @@ export default function UnitsPage() {
   useEffect(() => { load() }, [])
 
   function set(k, v) { setForm((p) => ({ ...p, [k]: v })) }
+  function setContract(k, v) { setContractForm((p) => ({ ...p, [k]: v })) }
+
+  function applyDuration(months) {
+    if (!contractForm.startDate) return
+    const d = new Date(contractForm.startDate)
+    d.setMonth(d.getMonth() + months)
+    d.setDate(d.getDate() - 1)
+    setContractForm((p) => ({ ...p, endDate: d.toISOString().slice(0, 10) }))
+  }
 
   function openCreate() { setForm(EMPTY_FORM); setModal('create') }
-  function openEdit(row) { setForm({ ...row, warehouseId: row.warehouseId ?? 1 }); setModal('edit') }
 
-  async function saveCreate() {
-    await client.post('/admin/units', { ...form, monthlyPrice: Number(form.monthlyPrice) })
-    setModal(null); load()
+  function openContractEdit(row) {
+    setContractForm({
+      contractId: row.contractId ?? '',
+      unitId: row.id,
+      customerName: row.contractCustomerName ?? '',
+      customerPhone: row.contractCustomerPhone ?? '',
+      customerEmail: row.contractCustomerEmail ?? '',
+      startDate: row.contractStartDate ?? '',
+      endDate: row.contractEndDate ?? '',
+      totalPrice: row.contractTotalPrice ?? '',
+    })
+    setContractModal('edit')
   }
 
-  async function saveEdit() {
-    await client.put(`/admin/units/${form.id}`, { unitNumber: form.unitNumber, zone: form.zone, monthlyPrice: Number(form.monthlyPrice) })
-    setModal(null); load()
+  async function saveContractEdit() {
+    await client.put(`/admin/contracts/${contractForm.contractId}`, {
+      unitId: contractForm.unitId,
+      customerName: contractForm.customerName,
+      customerPhone: contractForm.customerPhone,
+      customerEmail: contractForm.customerEmail,
+      startDate: contractForm.startDate,
+      endDate: contractForm.endDate,
+      totalPrice: Number(contractForm.totalPrice),
+    })
+    setContractModal(null)
+    load()
   }
 
-  function deactivate(row) {
+  function terminateContract(row) {
     setConfirmModal({
-      message: `유닛 ${row.unitNumber}의 계약을 초기화할까요?`,
+      message: `계약 #${row.contractId}을 해지할까요?`,
       onConfirm: async () => {
-        await client.delete(`/admin/units/${row.id}`)
+        await client.patch(`/admin/contracts/${row.contractId}/terminate`)
         setConfirmModal(null)
         load()
       },
     })
+  }
+
+  async function saveCreate() {
+    await client.post('/admin/units', { ...form, monthlyPrice: Number(form.monthlyPrice) })
+    setModal(null); load()
   }
 
   async function changeStatus(unitId, status) {
@@ -93,11 +127,20 @@ export default function UnitsPage() {
       </div>
 
       <DataTable
+        key={sizeFilter}
         columns={columns}
         rows={sizeFilter ? units.filter((u) => u.size === sizeFilter) : units}
-        onEdit={openEdit}
+
         actions={(row) => (
-          <button className="px-2.5 py-1 rounded-md text-[12px] font-semibold mr-1 bg-slate-100 text-slate-600 hover:bg-slate-200" onClick={() => setStatusModal(row)}>상태 변경</button>
+          <>
+            {row.contractId && row.status === 'OCCUPIED' && (
+              <>
+                <button className="btn-sm btn-edit mr-1" onClick={() => openContractEdit(row)}>계약 수정</button>
+                <button className="btn-sm btn-delete mr-1" onClick={() => terminateContract(row)}>해지</button>
+              </>
+            )}
+            <button className="px-2.5 py-1 rounded-md text-[12px] font-semibold mr-1 bg-slate-100 text-slate-600 hover:bg-slate-200" onClick={() => setStatusModal(row)}>상태 변경</button>
+          </>
         )}
         headerExtra={
           <div className="flex items-center gap-1">
@@ -122,10 +165,10 @@ export default function UnitsPage() {
         }
       />
 
-      {(modal === 'create' || modal === 'edit') && (
+      {modal === 'create' && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[3px]" onClick={() => setModal(null)}>
           <div className="bg-white rounded-[20px] p-9 w-full max-w-[480px] max-h-[90vh] overflow-y-auto shadow-[0_25px_60px_rgba(0,0,0,0.25)]" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight">{modal === 'create' ? '유닛 추가' : '유닛 수정'}</h2>
+            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight">유닛 추가</h2>
             <div className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-2.5 items-center mb-5">
               <label className="text-[13px] font-semibold text-slate-700">유닛 번호</label>
               <input 
@@ -133,16 +176,14 @@ export default function UnitsPage() {
                 value={form.unitNumber} 
                 onChange={(e) => set('unitNumber', e.target.value)} 
               />
-              {modal === 'create' && <>
-                <label className="text-[13px] font-semibold text-slate-700">사이즈</label>
-                <select 
-                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
-                  value={form.size} 
-                  onChange={(e) => set('size', e.target.value)}
-                >
-                  {SIZES.map((s) => <option key={s}>{s}</option>)}
-                </select>
-              </>}
+              <label className="text-[13px] font-semibold text-slate-700">사이즈</label>
+              <select
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                value={form.size}
+                onChange={(e) => set('size', e.target.value)}
+              >
+                {SIZES.map((s) => <option key={s}>{s}</option>)}
+              </select>
               <label className="text-[13px] font-semibold text-slate-700">구역</label>
               <input 
                 className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
@@ -159,11 +200,8 @@ export default function UnitsPage() {
               />
             </div>
             <div className="flex justify-end gap-2 mt-2">
-              {modal === 'edit' && (
-                <button className="btn-delete btn-sm mr-auto" onClick={() => { setModal(null); deactivate(form) }}>삭제</button>
-              )}
               <button className="btn-ghost" onClick={() => setModal(null)}>취소</button>
-              <button className="btn-primary" onClick={modal === 'create' ? saveCreate : saveEdit}>저장</button>
+              <button className="btn-primary" onClick={saveCreate}>저장</button>
             </div>
           </div>
         </div>
@@ -175,6 +213,76 @@ export default function UnitsPage() {
           onConfirm={confirmModal.onConfirm}
           onCancel={() => setConfirmModal(null)}
         />
+      )}
+
+      {contractModal === 'edit' && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[3px]" onClick={() => setContractModal(null)}>
+          <div className="bg-white rounded-[20px] p-9 w-full max-w-[620px] max-h-[90vh] overflow-y-auto shadow-[0_25px_60px_rgba(0,0,0,0.25)]" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight">계약 수정</h2>
+            <div className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-2.5 items-center mb-5">
+              <label className="text-[13px] font-semibold text-slate-700">고객명 *</label>
+              <input
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                value={contractForm.customerName}
+                onChange={(e) => setContract('customerName', e.target.value)}
+              />
+              <label className="text-[13px] font-semibold text-slate-700">연락처 *</label>
+              <input
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                value={contractForm.customerPhone}
+                onChange={(e) => setContract('customerPhone', e.target.value)}
+              />
+              <label className="text-[13px] font-semibold text-slate-700">이메일</label>
+              <input
+                type="email"
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                value={contractForm.customerEmail}
+                onChange={(e) => setContract('customerEmail', e.target.value)}
+              />
+              <label className="text-[13px] font-semibold text-slate-700">시작일 *</label>
+              <div className="flex flex-col gap-1.5">
+                <input
+                  type="date"
+                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                  value={contractForm.startDate}
+                  onChange={(e) => setContract('startDate', e.target.value)}
+                />
+                <div className="flex gap-1.5">
+                  {[3, 6, 12].map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      className="flex-1 py-1 rounded-md border-[1.5px] border-slate-200 bg-slate-50 text-[12px] font-semibold text-slate-600 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                      disabled={!contractForm.startDate}
+                      onClick={() => applyDuration(m)}
+                    >
+                      {m}개월
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <label className="text-[13px] font-semibold text-slate-700">종료일 *</label>
+              <input
+                type="date"
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                value={contractForm.endDate}
+                onChange={(e) => setContract('endDate', e.target.value)}
+              />
+              <label className="text-[13px] font-semibold text-slate-700">계약 금액 *</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                value={contractForm.totalPrice ? Number(contractForm.totalPrice).toLocaleString() : ''}
+                onChange={(e) => setContract('totalPrice', e.target.value.replace(/[^0-9]/g, ''))}
+              />
+            </div>
+            <div className="flex justify-end gap-2 mt-2">
+              <button className="btn-ghost" onClick={() => setContractModal(null)}>취소</button>
+              <button className="btn-primary" onClick={saveContractEdit}>저장</button>
+            </div>
+          </div>
+        </div>
       )}
 
       {statusModal && (

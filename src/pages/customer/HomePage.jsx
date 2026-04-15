@@ -6,6 +6,7 @@ import client from '../../api/client.js'
 const SIZE_ORDER = { XS: 0, S: 1, M: 2, L: 3, XL: 4 }
 const SIZE_LABEL = { XS: '극소형', S: '소형', M: '중형', L: '대형', XL: '특대형' }
 const SIZE_DIMS = { XS: '115 × 105 × 115 cm', S: '115 × 105 × 240 cm', M: '115 × 170 × 240 cm', L: '115 × 230 × 240 cm', XL: '210 × 240 × 240 cm' }
+const SIZE_PRICE = { XS: 66000, S: 99000, M: 154000, L: 198000, XL: 330000 }
 
 const NAVY = '#1a2238'
 const NAVY_DEEP = '#111827'
@@ -110,6 +111,83 @@ export default function HomePage() {
     available: units.filter((u) => u.status === 'AVAILABLE').length,
     occupied: units.filter((u) => u.status === 'OCCUPIED' && !u.expiringSoon).length,
     expiring: units.filter((u) => u.expiringSoon).length,
+  }
+
+  // 사이즈별 유닛 분류 (유닛 번호 순 정렬)
+  const xs   = units.filter((u) => u.size === 'XS')
+  const sAll = units.filter((u) => u.size === 'S')
+  const mAll = units.filter((u) => u.size === 'M')
+  const lAll = units.filter((u) => u.size === 'L')
+  const xlAll = units.filter((u) => u.size === 'XL')
+
+  // 구역별 그리드 배열 구성
+  const xsGrid     = Array(50).fill(null).map((_, i) => xs[i] ?? null)   // 25×2
+  const sBlock1    = Array(50).fill(null).map((_, i) => sAll[i] ?? null)  // 25×2
+
+  // 구역3: 25×2 = 50칸
+  //   row1: [M×13 | S×7 | empty×5]
+  //   row2: [M×13 | L×11 | empty×1]
+  const sec3 = Array(50).fill(null)
+  mAll.slice(0, 13).forEach((u, i) => { sec3[i] = u })
+  sAll.slice(50, 57).forEach((u, i) => { sec3[13 + i] = u })
+  mAll.slice(13, 26).forEach((u, i) => { sec3[25 + i] = u })
+  lAll.slice(0, 11).forEach((u, i) => { sec3[38 + i] = u })
+
+  // 구역4: S(3) + XL(4) = 7칸
+  const sec4 = Array(25).fill(null)
+  sAll.slice(57, 60).forEach((u, i) => { sec4[i] = u })
+  xlAll.slice(0, 4).forEach((u, i) => { sec4[3 + i] = u })
+
+  function renderCell(unit, key, halfHeight = false) {
+    if (!unit) return <div key={key} className={halfHeight ? 'h-11' : 'h-16'} />
+    const overlay = statusOverlay(unit)
+    const expiring = isExpiring(unit)
+    return (
+      <div
+        key={unit.id}
+        className={`${halfHeight ? 'h-11' : 'h-16'} rounded-[3px] flex items-center justify-center cursor-default transition-all duration-150 hover:scale-110 hover:z-10 relative overflow-hidden`}
+        style={{
+          backgroundColor: SIZE_COLOR[unit.size],
+          boxShadow: hovered?.id === unit.id
+            ? '0 0 0 2px #f97316'
+            : expiring
+            ? '0 0 0 2px #fbbf24'
+            : undefined,
+        }}
+        onMouseEnter={() => setHovered(unit)}
+        onMouseLeave={() => setHovered(null)}
+        onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
+      >
+        {overlay && <div className="absolute inset-0" style={{ backgroundColor: overlay }} />}
+        <div className="relative z-10 flex flex-col items-center leading-none select-none gap-0.5">
+          <span className="text-[9px] font-extrabold text-white/50">{unit.size}</span>
+          <span className="text-[10px] font-black text-white/70">{unit.unitNumber.slice(-2)}</span>
+        </div>
+      </div>
+    )
+  }
+
+  function renderSplitRows(cells, keyPrefix, halfHeight = false) {
+    const COLS = 25
+    const LEFT = 13
+    const numRows = Math.ceil(cells.length / COLS)
+    return Array.from({ length: numRows }, (_, r) => {
+      const rowCells = [...cells.slice(r * COLS, (r + 1) * COLS)]
+      while (rowCells.length < COLS) rowCells.push(null)
+      const leftCells = rowCells.slice(0, LEFT)
+      const rightCells = rowCells.slice(LEFT)
+      return (
+        <div key={`${keyPrefix}-row-${r}`} style={{ display: 'flex', gap: '3px', marginBottom: r < numRows - 1 ? '3px' : 0 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(13, minmax(0, 1fr))', gap: '3px', flexGrow: 13, flexBasis: 0 }}>
+            {leftCells.map((unit, i) => renderCell(unit, `${keyPrefix}-${r}-L-${i}`, halfHeight))}
+          </div>
+          <div style={{ width: '20px', flexShrink: 0 }} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, minmax(0, 1fr))', gap: '3px', flexGrow: 12, flexBasis: 0 }}>
+            {rightCells.map((unit, i) => renderCell(unit, `${keyPrefix}-${r}-R-${i}`, halfHeight))}
+          </div>
+        </div>
+      )
+    })
   }
 
   return (
@@ -225,35 +303,36 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="rounded-2xl p-6 md:p-8 border-2 border-slate-100" style={{ backgroundColor: '#f8fafc' }}>
-            <div className="grid grid-cols-10 gap-2">
-              {units.map((unit) => {
-                const overlay = statusOverlay(unit)
-                const expiring = isExpiring(unit)
-                return (
-                  <div
-                    key={unit.id}
-                    className="aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 cursor-default transition-all duration-150 hover:scale-110 hover:shadow-lg hover:z-10 relative overflow-hidden"
-                    style={{
-                      backgroundColor: SIZE_COLOR[unit.size],
-                      boxShadow: hovered?.id === unit.id
-                        ? '0 0 0 2.5px #f97316'
-                        : expiring
-                        ? '0 0 0 2.5px #fbbf24'
-                        : undefined,
-                    }}
-                    onMouseEnter={() => setHovered(unit)}
-                    onMouseLeave={() => setHovered(null)}
-                    onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
-                  >
-                    {overlay && (
-                      <div className="absolute inset-0" style={{ backgroundColor: overlay }} />
-                    )}
-                    <span className="relative z-10 text-[13px] font-black leading-none text-white/80">{unit.size}</span>
-                    <span className="relative z-10 text-[11px] font-bold leading-none text-white/60">{unit.unitNumber.slice(-2)}</span>
-                  </div>
-                )
-              })}
+          <div className="rounded-2xl p-6 md:p-8 border-2 border-slate-100 overflow-x-auto" style={{ backgroundColor: '#f8fafc' }}>
+            <div style={{ minWidth: '720px' }}>
+
+              {/* XS: 25×2, 반 높이 (상하 적층) */}
+              <div className="grid gap-[3px]" style={{ gridTemplateColumns: 'repeat(25, minmax(0, 1fr))' }}>
+                {xsGrid.map((unit, i) => renderCell(unit, `xs-${i}`, true))}
+              </div>
+
+              {/* 복도 */}
+              <div className="my-3">
+                <div className="border-t border-dashed border-slate-300" />
+              </div>
+
+              {/* S: 25×2, 13열 기준 복도 공백 */}
+              {renderSplitRows(sBlock1, 's1')}
+
+              {/* 복도 */}
+              <div className="my-3">
+                <div className="border-t border-dashed border-slate-300" />
+              </div>
+
+              {/* M(13×2) 왼쪽 | S(7)+L(11) 오른쪽, 13열 기준 복도 공백 */}
+              {renderSplitRows(sec3, 's3')}
+
+              {/* 간격 */}
+              <div className="my-3" />
+
+              {/* S(3) + XL(4), 13열 기준 복도 공백 */}
+              {renderSplitRows(sec4, 's4')}
+
             </div>
           </div>
 
@@ -472,7 +551,7 @@ export default function HomePage() {
           <span style={{ color: 'rgba(255,255,255,0.5)' }}>{SIZE_DIMS[hovered.size]}</span>
           <br />
           <span style={{ color: '#fb923c', fontWeight: 700 }}>
-            월 {Number(hovered.monthlyPrice).toLocaleString()}원
+            월 {SIZE_PRICE[hovered.size].toLocaleString()}원
           </span>
           <br />
           <span className="inline-block px-2 py-0.5 rounded text-[11px] font-bold mt-1.5 text-black/70" style={statusBadgeStyle(hovered)}>
