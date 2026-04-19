@@ -19,7 +19,7 @@ const SIZE_COLOR = {
 }
 
 const EMPTY_FORM = { warehouseId: 1, unitNumber: '', size: 'S', zone: '', monthlyPrice: '' }
-const EMPTY_CONTRACT_FORM = { contractId: '', unitId: '', customerName: '', customerPhone: '', customerEmail: '', startDate: '', endDate: '', totalPrice: '' }
+const EMPTY_CONTRACT_FORM = { contractId: '', unitId: '', customerName: '', customerPhone: '', customerAddress: '', startDate: '', endDate: '', totalPrice: '' }
 
 export default function UnitsPage() {
   const [units, setUnits] = useState([])
@@ -51,16 +51,18 @@ export default function UnitsPage() {
 
   function openCreate() { setForm(EMPTY_FORM); setModal('create') }
 
-  function openContractEdit(row) {
+  async function openContractEdit(row) {
+    const res = await client.get(`/admin/contracts/${row.contractId}`)
+    const c = res.data
     setContractForm({
-      contractId: row.contractId ?? '',
-      unitId: row.id,
-      customerName: row.contractCustomerName ?? '',
-      customerPhone: row.contractCustomerPhone ?? '',
-      customerEmail: row.contractCustomerEmail ?? '',
-      startDate: row.contractStartDate ?? '',
-      endDate: row.contractEndDate ?? '',
-      totalPrice: row.contractTotalPrice ?? '',
+      contractId: c.id,
+      unitId: c.unitId,
+      customerName: c.customerName ?? '',
+      customerPhone: c.customerPhone ?? '',
+      customerAddress: c.customerAddress ?? '',
+      startDate: c.startDate ?? '',
+      endDate: c.endDate ?? '',
+      totalPrice: c.totalPrice ?? '',
     })
     setContractModal('edit')
   }
@@ -70,7 +72,7 @@ export default function UnitsPage() {
       unitId: contractForm.unitId,
       customerName: contractForm.customerName,
       customerPhone: contractForm.customerPhone,
-      customerEmail: contractForm.customerEmail,
+      customerAddress: contractForm.customerAddress,
       startDate: contractForm.startDate,
       endDate: contractForm.endDate,
       totalPrice: Number(contractForm.totalPrice),
@@ -232,12 +234,11 @@ export default function UnitsPage() {
                 value={contractForm.customerPhone}
                 onChange={(e) => setContract('customerPhone', e.target.value)}
               />
-              <label className="text-[13px] font-semibold text-slate-700">이메일</label>
+              <label className="text-[13px] font-semibold text-slate-700">주소</label>
               <input
-                type="email"
                 className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
-                value={contractForm.customerEmail}
-                onChange={(e) => setContract('customerEmail', e.target.value)}
+                value={contractForm.customerAddress}
+                onChange={(e) => setContract('customerAddress', e.target.value)}
               />
               <label className="text-[13px] font-semibold text-slate-700">시작일 *</label>
               <div className="flex flex-col gap-1.5">
