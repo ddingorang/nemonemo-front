@@ -22,7 +22,10 @@ export default function DataTable({ columns, rows, onEdit, onDelete, actions, se
 
   const sorted = sortKey
     ? [...filtered].sort((a, b) => {
-        const va = a[sortKey] ?? ''; const vb = b[sortKey] ?? ''
+        const va = a[sortKey]; const vb = b[sortKey]
+        if (va == null && vb == null) return 0
+        if (va == null) return 1
+        if (vb == null) return -1
         return sortDir === 'asc' ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va))
       })
     : filtered

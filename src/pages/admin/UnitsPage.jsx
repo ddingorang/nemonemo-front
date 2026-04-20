@@ -4,18 +4,21 @@ import client from '../../api/client.js'
 import DataTable from '../../components/DataTable.jsx'
 import ConfirmModal from '../../components/ConfirmModal.jsx'
 
-const STATUS_LABELS = { AVAILABLE: '이용 가능', OCCUPIED: '사용 중', RESERVED: '예약됨', MAINTENANCE: '점검 중' }
-const STATUS_CLASS = { AVAILABLE: 'bg-green-100 text-green-700', OCCUPIED: 'bg-orange-100 text-orange-700', RESERVED: 'bg-yellow-100 text-yellow-700', MAINTENANCE: 'bg-slate-100 text-slate-500' }
+const STATUS_LABELS = { ACTIVE: '계약 중', EXPIRED: '만료', TERMINATED: '해지', AVAILABLE: '비어있음', OCCUPIED: '사용 중', RESERVED: '예약됨', MAINTENANCE: '점검 중' }
+const STATUS_CLASS = { ACTIVE: 'bg-green-100 text-green-700', EXPIRED: 'bg-slate-100 text-slate-500', TERMINATED: 'bg-red-100 text-red-500', AVAILABLE: 'bg-blue-100 text-blue-600', OCCUPIED: 'bg-green-100 text-green-700', RESERVED: 'bg-yellow-100 text-yellow-700', MAINTENANCE: 'bg-orange-100 text-orange-600' }
 const SIZES = ['S', 'M', 'L', 'XL']
-const FILTER_SIZES = ['XS', 'S', 'M', 'L', 'XL']
 const STATUSES = ['AVAILABLE', 'OCCUPIED', 'RESERVED', 'MAINTENANCE']
 
-const SIZE_COLOR = {
-  XS: '#818cf8',
-  S:  '#4ade80',
-  M:  '#38bdf8',
-  L:  '#fb923c',
-  XL: '#f43f5e',
+const SIZE_ORDER = ['XS', 'S', 'M', 'L', 'XL']
+const SIZE_COLOR = { XS: '#818cf8', S: '#4ade80', M: '#38bdf8', L: '#fb923c', XL: '#f43f5e' }
+function sizeFromUnitNumber(unitNumber) { return unitNumber?.split('-')[0] ?? '' }
+function unitSort(a, b) {
+  if (a.endDate && b.endDate) return a.endDate.localeCompare(b.endDate)
+  if (a.endDate) return -1
+  if (b.endDate) return 1
+  const sizeDiff = SIZE_ORDER.indexOf(sizeFromUnitNumber(a.unitNumber)) - SIZE_ORDER.indexOf(sizeFromUnitNumber(b.unitNumber))
+  if (sizeDiff !== 0) return sizeDiff
+  return a.unitNumber.localeCompare(b.unitNumber)
 }
 
 const EMPTY_FORM = { warehouseId: 1, unitNumber: '', size: 'S', zone: '', monthlyPrice: '' }
@@ -33,8 +36,37 @@ export default function UnitsPage() {
   const [contractForm, setContractForm] = useState(EMPTY_CONTRACT_FORM)
 
   async function load() {
-    const res = await client.get('/admin/units')
-    setUnits(res.data)
+    const [unitsRes, contractsRes] = await Promise.all([
+      client.get('/admin/units'),
+      client.get('/admin/contracts?status=ACTIVE&size=500'),
+    ])
+    const unitList = unitsRes.data.content ?? unitsRes.data
+    const contractList = contractsRes.data.content ?? contractsRes.data
+    const contractByUnit = {}
+    for (const c of contractList) contractByUnit[c.unitId] = c
+
+    const merged = unitList.map((unit) => {
+      const c = contractByUnit[unit.id] ?? null
+      return {
+        id: unit.id,
+        contractId: c?.id ?? null,
+        unitId: unit.id,
+        unitNumber: unit.unitNumber,
+        size: unit.size,
+        zone: unit.zone,
+        monthlyPrice: unit.monthlyPrice,
+        status: c ? c.status : (unit.status ?? 'AVAILABLE'),
+        customerName: c?.customerName ?? null,
+        customerPhone: c?.customerPhone ?? null,
+        customerAddress: c?.customerAddress ?? null,
+        createdAt: c?.createdAt ?? null,
+        startDate: c?.startDate ?? null,
+        endDate: c?.endDate ?? null,
+        totalPrice: c?.totalPrice ?? null,
+        expiringSoon: c?.expiringSoon ?? false,
+      }
+    })
+    setUnits(merged)
     setSelectedUnit(null)
   }
 
@@ -105,27 +137,27 @@ export default function UnitsPage() {
   }
 
   const columns = [
-    { key: 'unitNumber', label: '유닛 번호', sortable: true, width: '100px', render: (v, row) => (
+    { key: 'unitNumber', label: '유닛 번호', sortable: true, width: '100px', render: (v) => (
       <span
         className="inline-flex items-center px-2.5 py-1 rounded-md text-[12px] font-extrabold text-slate-900"
-        style={{ backgroundColor: SIZE_COLOR[row.size] ?? '#e2e8f0' }}
+        style={{ backgroundColor: SIZE_COLOR[sizeFromUnitNumber(v)] ?? '#e2e8f0' }}
       >
         {v}
       </span>
     )},
-    { key: 'contractCustomerName', label: '사용 고객', sortable: true, width: '110px', render: (v) => v ?? '-' },
-    { key: 'contractCustomerPhone', label: '연락처', width: '140px', render: (v) => v ?? '-' },
-    { key: 'contractCreatedAt', label: '계약 일자', sortable: true, width: '120px', render: (v) => v ? v.slice(0, 10) : '-' },
-    { key: 'contractStartDate', label: '시작일', sortable: true, width: '120px', render: (v) => v ?? '-' },
-    { key: 'contractEndDate', label: '만료 예정일', sortable: true, width: '120px', render: (v, row) => v
+    { key: 'customerName', label: '사용 고객', sortable: true, width: '110px', render: (v) => v ?? '-' },
+    { key: 'customerPhone', label: '연락처', width: '140px', sortable: false, render: (v) => v ?? '-' },
+    { key: 'createdAt', label: '계약 일자', sortable: true, width: '120px', render: (v) => v ? v.slice(0, 10) : '-' },
+    { key: 'startDate', label: '시작일', sortable: true, width: '120px', render: (v) => v ?? '-' },
+    { key: 'endDate', label: '만료 예정일', sortable: true, width: '120px', render: (v, row) => v
       ? <span className={row.expiringSoon ? 'text-orange-600 font-bold' : ''}>{v}</span>
       : '-' },
     { key: 'status', label: '상태', sortable: true, width: '110px', render: (v, row) => (
-      row.expiringSoon
+      row.expiringSoon && row.status === 'ACTIVE'
         ? <span className="inline-block px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-500">만료 임박</span>
-        : <span className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-bold ${STATUS_CLASS[v]}`}>{STATUS_LABELS[v]}</span>
+        : <span className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-bold ${STATUS_CLASS[v] ?? 'bg-slate-100 text-slate-500'}`}>{STATUS_LABELS[v] ?? v}</span>
     )},
-    { key: 'contractCustomerAddress', label: '주소', render: (v) => v ?? '-' },
+    { key: 'customerAddress', label: '주소', render: (v) => v ?? '-' },
   ]
 
   return (
@@ -138,7 +170,10 @@ export default function UnitsPage() {
       <DataTable
         key={sizeFilter}
         columns={columns}
-        rows={sizeFilter ? units.filter((u) => u.size === sizeFilter) : units}
+        rows={sizeFilter
+          ? units.filter((u) => sizeFromUnitNumber(u.unitNumber) === sizeFilter)
+          : [...units].sort(unitSort)
+        }
         selectedId={selectedUnit?.id}
         onSelect={setSelectedUnit}
         headerExtra={
@@ -148,7 +183,7 @@ export default function UnitsPage() {
                 className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all border-[1.5px] ${sizeFilter === null ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400 hover:text-slate-700'}`}
                 onClick={() => setSizeFilter(null)}
               >전체</button>
-              {FILTER_SIZES.map((s) => (
+              {['XS', 'S', 'M', 'L', 'XL'].map((s) => (
                 <button
                   key={s}
                   className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all border-[1.5px] ${sizeFilter === s ? 'text-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:text-slate-700'}`}
@@ -164,7 +199,7 @@ export default function UnitsPage() {
             </div>
             {selectedUnit && (
               <div className="flex items-center gap-1.5 pl-2 border-l border-slate-200">
-                {selectedUnit.contractId && selectedUnit.status === 'OCCUPIED' && (
+                {selectedUnit.status === 'ACTIVE' && (
                   <>
                     <button className="btn-sm btn-edit" onClick={() => openContractEdit(selectedUnit)}>계약 수정</button>
                     <button className="btn-sm btn-delete" onClick={() => terminateContract(selectedUnit)}>해지</button>
@@ -309,7 +344,7 @@ export default function UnitsPage() {
                       ? 'bg-orange-500 text-white border-orange-500'
                       : 'bg-white text-slate-700 border-slate-200 hover:border-orange-500 hover:text-orange-500'
                   }`}
-                  onClick={() => changeStatus(statusModal.id, s)}
+                  onClick={() => changeStatus(statusModal.unitId, s)}
                 >
                   {STATUS_LABELS[s]}
                 </button>
