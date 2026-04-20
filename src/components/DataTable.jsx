@@ -1,7 +1,7 @@
 // Created: 2026-04-08 23:14:37
 import { useState } from 'react'
 
-export default function DataTable({ columns, rows, onEdit, onDelete, actions, serverPage, serverTotalPages, serverTotalCount, onServerPageChange, headerExtra }) {
+export default function DataTable({ columns, rows, onEdit, onDelete, actions, serverPage, serverTotalPages, serverTotalCount, onServerPageChange, headerExtra, selectedId, onSelect }) {
   const isServerPaged = serverPage !== undefined
 
   const [sortKey, setSortKey] = useState(null)
@@ -53,28 +53,46 @@ export default function DataTable({ columns, rows, onEdit, onDelete, actions, se
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-[13px]">
+          <colgroup>
+            {onSelect && <col style={{ width: '40px' }} />}
+            {columns.map((col) => <col key={col.key} style={col.width ? { width: col.width } : {}} />)}
+            {(onEdit || onDelete || actions) && <col style={{ width: '120px' }} />}
+          </colgroup>
           <thead>
             <tr>
+              {onSelect && <th className="w-10 p-2.5 px-4 bg-slate-50/50 border-b border-slate-200" />}
               {columns.map((col) => (
                 <th
                   key={col.key}
                   onClick={() => col.sortable !== false && toggleSort(col.key)}
-                  className={`text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 bg-slate-50/50 border-b border-slate-200 whitespace-nowrap tracking-wider uppercase ${col.sortable !== false ? 'cursor-pointer select-none hover:bg-orange-50 hover:text-orange-500' : ''}`}
+                  className={`text-center p-2.5 px-4 text-[11px] font-bold text-slate-400 bg-slate-50/50 border-b border-slate-200 whitespace-nowrap tracking-wider uppercase ${col.sortable !== false ? 'cursor-pointer select-none hover:bg-orange-50 hover:text-orange-500' : ''}`}
                 >
                   {col.label}
                   {sortKey === col.key ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ''}
                 </th>
               ))}
-              {(onEdit || onDelete || actions) && <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 bg-slate-50/50 border-b border-slate-200 whitespace-nowrap tracking-wider uppercase">작업</th>}
+              {(onEdit || onDelete || actions) && <th className="text-center p-2.5 px-4 text-[11px] font-bold text-slate-400 bg-slate-50/50 border-b border-slate-200 whitespace-nowrap tracking-wider uppercase">작업</th>}
             </tr>
           </thead>
           <tbody>
             {paged.length === 0 ? (
-              <tr><td colSpan={columns.length + 1} className="text-center text-slate-400 p-16">데이터가 없습니다.</td></tr>
+              <tr><td colSpan={columns.length + (onSelect ? 2 : 1)} className="text-center text-slate-400 p-16">데이터가 없습니다.</td></tr>
             ) : paged.map((row, i) => (
-              <tr key={row.id ?? i} className="hover:bg-slate-50/80 transition-colors">
+              <tr key={row.id ?? i} className={`transition-colors ${onSelect && row.id === selectedId ? 'bg-orange-50/60' : 'hover:bg-slate-50/80'}`}>
+                {onSelect && (
+                  <td className="p-2.5 px-4 border-b border-slate-100 w-10">
+                    <div className="flex items-center justify-center h-full">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 accent-orange-500 cursor-pointer block"
+                        checked={row.id === selectedId}
+                        onChange={() => onSelect(row.id === selectedId ? null : row)}
+                      />
+                    </div>
+                  </td>
+                )}
                 {columns.map((col) => (
-                  <td key={col.key} className="p-2.5 px-4 border-b border-slate-100 align-middle whitespace-nowrap text-slate-700 font-medium">{col.render ? col.render(row[col.key], row) : (row[col.key] ?? '-')}</td>
+                  <td key={col.key} className="p-2.5 px-4 border-b border-slate-100 align-middle whitespace-nowrap text-slate-700 font-medium text-center">{col.render ? col.render(row[col.key], row) : (row[col.key] ?? '-')}</td>
                 ))}
                 {(onEdit || onDelete || actions) && (
                   <td className="p-2.5 px-4 border-b border-slate-100 align-middle whitespace-nowrap">

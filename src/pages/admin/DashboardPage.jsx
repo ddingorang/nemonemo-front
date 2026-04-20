@@ -21,6 +21,14 @@ const SIZE_COLORS = {
   XL: '#a78bfa',
 }
 
+const SIZE_BADGE_COLORS = {
+  XS: '#818cf8',
+  S:  '#4ade80',
+  M:  '#38bdf8',
+  L:  '#fb923c',
+  XL: '#f43f5e',
+}
+
 function formatRevenue(value) {
   if (value >= 100000000) return `${(value / 100000000).toFixed(1)}억`
   if (value >= 10000) return `${(value / 10000).toFixed(0)}만`
@@ -156,13 +164,15 @@ function StatsSection() {
   const [mode, setMode] = useState('monthly')
   const [year, setYear] = useState(new Date().getFullYear())
   const [stats, setStats] = useState(null)
+  const [loading, setLoading] = useState(false)
   const [tableView, setTableView] = useState('count')
 
   useEffect(() => {
-    setStats(null)
+    setLoading(true)
     client
       .get(`/admin/dashboard/stats/${mode}`, { params: { year } })
       .then((res) => setStats(res.data))
+      .finally(() => setLoading(false))
   }, [mode, year])
 
   const countData = stats ? buildChartData(stats.items, mode) : []
@@ -240,7 +250,7 @@ function StatsSection() {
       {!stats ? (
         <div className="h-64 flex items-center justify-center text-slate-300 text-sm">불러오는 중...</div>
       ) : (
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-14 items-start">
+        <div className={`grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-14 items-start transition-opacity duration-150 ${loading ? 'opacity-40' : 'opacity-100'}`}>
             {/* 왼쪽: 차트 2개 세로 배치 */}
             <div className="flex flex-col gap-8">
               <div>
@@ -282,7 +292,7 @@ function StatsSection() {
             </div>
 
             {/* 오른쪽: 토글 표 */}
-            <div className="xl:w-[420px]">
+            <div className="xl:w-[520px]">
               <div className="flex items-center justify-between mb-4">
                 <div className="text-[13px] font-bold text-slate-600">
                   {tableView === 'count' ? '계약 건수 상세' : '계약 금액 상세'}
@@ -386,16 +396,34 @@ export default function DashboardPage() {
                   <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">고객명</th>
                   <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">연락처</th>
                   <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">종료일</th>
+                  <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">잔여일</th>
                   <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">계약 금액</th>
                 </tr>
               </thead>
               <tbody>
                 {expiringThisMonth.map((c) => (
                   <tr key={c.id} className="hover:bg-slate-50">
-                    <td className="p-3 px-4 border-b border-slate-100">{c.unitNumber}</td>
+                    <td className="p-3 px-4 border-b border-slate-100">
+                      <span
+                        className="inline-flex items-center px-2.5 py-1 rounded-md text-[12px] font-extrabold text-slate-900"
+                        style={{ backgroundColor: SIZE_BADGE_COLORS[c.unitNumber.split('-')[0]] ?? '#e2e8f0' }}
+                      >
+                        {c.unitNumber}
+                      </span>
+                    </td>
                     <td className="p-3 px-4 border-b border-slate-100">{c.customerName}</td>
                     <td className="p-3 px-4 border-b border-slate-100">{c.customerPhone}</td>
                     <td className="p-3 px-4 border-b border-slate-100 text-yellow-600 font-semibold">{c.endDate}</td>
+                    <td className="p-3 px-4 border-b border-slate-100">
+                      {(() => {
+                        const days = Math.ceil((new Date(c.endDate) - new Date()) / (1000 * 60 * 60 * 24))
+                        return (
+                          <span className={`font-semibold ${days <= 7 ? 'text-red-500' : 'text-yellow-600'}`}>
+                            D-{days}
+                          </span>
+                        )
+                      })()}
+                    </td>
                     <td className="p-3 px-4 border-b border-slate-100">{Number(c.totalPrice).toLocaleString()}원</td>
                   </tr>
                 ))}

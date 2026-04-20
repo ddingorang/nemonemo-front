@@ -23,6 +23,7 @@ const EMPTY_CONTRACT_FORM = { contractId: '', unitId: '', customerName: '', cust
 
 export default function UnitsPage() {
   const [units, setUnits] = useState([])
+  const [selectedUnit, setSelectedUnit] = useState(null)
   const [sizeFilter, setSizeFilter] = useState(null)
   const [modal, setModal] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
@@ -34,6 +35,7 @@ export default function UnitsPage() {
   async function load() {
     const res = await client.get('/admin/units')
     setUnits(res.data)
+    setSelectedUnit(null)
   }
 
   useEffect(() => { load() }, [])
@@ -103,7 +105,7 @@ export default function UnitsPage() {
   }
 
   const columns = [
-    { key: 'unitNumber', label: '유닛 번호', sortable: true, render: (v, row) => (
+    { key: 'unitNumber', label: '유닛 번호', sortable: true, width: '100px', render: (v, row) => (
       <span
         className="inline-flex items-center px-2.5 py-1 rounded-md text-[12px] font-extrabold text-slate-900"
         style={{ backgroundColor: SIZE_COLOR[row.size] ?? '#e2e8f0' }}
@@ -111,14 +113,19 @@ export default function UnitsPage() {
         {v}
       </span>
     )},
-    { key: 'contractCustomerName', label: '사용 고객', sortable: true, render: (v) => v ?? '-' },
-    { key: 'contractCustomerPhone', label: '연락처', render: (v) => v ?? '-' },
-    { key: 'contractCreatedAt', label: '계약 일자', sortable: true, render: (v) => v ? v.slice(0, 10) : '-' },
-    { key: 'contractStartDate', label: '시작일', sortable: true, render: (v) => v ?? '-' },
-    { key: 'contractEndDate', label: '만료 예정일', sortable: true, render: (v, row) => v
+    { key: 'contractCustomerName', label: '사용 고객', sortable: true, width: '110px', render: (v) => v ?? '-' },
+    { key: 'contractCustomerPhone', label: '연락처', width: '140px', render: (v) => v ?? '-' },
+    { key: 'contractCreatedAt', label: '계약 일자', sortable: true, width: '120px', render: (v) => v ? v.slice(0, 10) : '-' },
+    { key: 'contractStartDate', label: '시작일', sortable: true, width: '120px', render: (v) => v ?? '-' },
+    { key: 'contractEndDate', label: '만료 예정일', sortable: true, width: '120px', render: (v, row) => v
       ? <span className={row.expiringSoon ? 'text-orange-600 font-bold' : ''}>{v}</span>
       : '-' },
-    { key: 'status', label: '상태', sortable: true, render: (v) => <span className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-bold ${STATUS_CLASS[v]}`}>{STATUS_LABELS[v]}</span> },
+    { key: 'status', label: '상태', sortable: true, width: '110px', render: (v, row) => (
+      row.expiringSoon
+        ? <span className="inline-block px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-500">만료 임박</span>
+        : <span className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-bold ${STATUS_CLASS[v]}`}>{STATUS_LABELS[v]}</span>
+    )},
+    { key: 'contractCustomerAddress', label: '주소', render: (v) => v ?? '-' },
   ]
 
   return (
@@ -132,37 +139,40 @@ export default function UnitsPage() {
         key={sizeFilter}
         columns={columns}
         rows={sizeFilter ? units.filter((u) => u.size === sizeFilter) : units}
-
-        actions={(row) => (
-          <>
-            {row.contractId && row.status === 'OCCUPIED' && (
-              <>
-                <button className="btn-sm btn-edit mr-1" onClick={() => openContractEdit(row)}>계약 수정</button>
-                <button className="btn-sm btn-delete mr-1" onClick={() => terminateContract(row)}>해지</button>
-              </>
-            )}
-            <button className="px-2.5 py-1 rounded-md text-[12px] font-semibold mr-1 bg-slate-100 text-slate-600 hover:bg-slate-200" onClick={() => setStatusModal(row)}>상태 변경</button>
-          </>
-        )}
+        selectedId={selectedUnit?.id}
+        onSelect={setSelectedUnit}
         headerExtra={
-          <div className="flex items-center gap-1">
-            <button
-              className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all border-[1.5px] ${sizeFilter === null ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400 hover:text-slate-700'}`}
-              onClick={() => setSizeFilter(null)}
-            >전체</button>
-            {FILTER_SIZES.map((s) => (
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1">
               <button
-                key={s}
-                className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all border-[1.5px] ${sizeFilter === s ? 'text-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:text-slate-700'}`}
-                style={sizeFilter === s
-                  ? { backgroundColor: SIZE_COLOR[s], borderColor: SIZE_COLOR[s], color: '#1e293b' }
-                  : { borderColor: '#e2e8f0' }
-                }
-                onMouseEnter={(e) => { if (sizeFilter !== s) { e.currentTarget.style.borderColor = SIZE_COLOR[s]; e.currentTarget.style.color = SIZE_COLOR[s] } }}
-                onMouseLeave={(e) => { if (sizeFilter !== s) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '' } }}
-                onClick={() => setSizeFilter(s)}
-              >{s}</button>
-            ))}
+                className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all border-[1.5px] ${sizeFilter === null ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400 hover:text-slate-700'}`}
+                onClick={() => setSizeFilter(null)}
+              >전체</button>
+              {FILTER_SIZES.map((s) => (
+                <button
+                  key={s}
+                  className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all border-[1.5px] ${sizeFilter === s ? 'text-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:text-slate-700'}`}
+                  style={sizeFilter === s
+                    ? { backgroundColor: SIZE_COLOR[s], borderColor: SIZE_COLOR[s], color: '#1e293b' }
+                    : { borderColor: '#e2e8f0' }
+                  }
+                  onMouseEnter={(e) => { if (sizeFilter !== s) { e.currentTarget.style.borderColor = SIZE_COLOR[s]; e.currentTarget.style.color = SIZE_COLOR[s] } }}
+                  onMouseLeave={(e) => { if (sizeFilter !== s) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '' } }}
+                  onClick={() => setSizeFilter(s)}
+                >{s}</button>
+              ))}
+            </div>
+            {selectedUnit && (
+              <div className="flex items-center gap-1.5 pl-2 border-l border-slate-200">
+                {selectedUnit.contractId && selectedUnit.status === 'OCCUPIED' && (
+                  <>
+                    <button className="btn-sm btn-edit" onClick={() => openContractEdit(selectedUnit)}>계약 수정</button>
+                    <button className="btn-sm btn-delete" onClick={() => terminateContract(selectedUnit)}>해지</button>
+                  </>
+                )}
+                <button className="px-2.5 py-1 rounded-md text-[12px] font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200" onClick={() => setStatusModal(selectedUnit)}>상태 변경</button>
+              </div>
+            )}
           </div>
         }
       />
