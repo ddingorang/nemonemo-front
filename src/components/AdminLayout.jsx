@@ -70,7 +70,7 @@ export default function AdminLayout() {
         </button>
       </aside>
 
-      <main className="flex-1 overflow-auto bg-slate-50">
+      <main className="flex-1 overflow-auto bg-slate-50" style={{ zoom: 1.08 }}>
         <Outlet />
       </main>
     </div>

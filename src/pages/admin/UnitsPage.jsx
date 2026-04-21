@@ -95,6 +95,26 @@ export default function UnitsPage() {
 
   function openCreate() { setForm(EMPTY_FORM); setModal('create') }
 
+  function openNewContract() {
+    setContractForm(EMPTY_CONTRACT_FORM)
+    setContractModal('create')
+  }
+
+  async function saveNewContract() {
+    await client.post('/admin/contracts', {
+      unitId: Number(contractForm.unitId),
+      customerName: contractForm.customerName,
+      customerPhone: contractForm.customerPhone,
+      customerAddress: contractForm.customerAddress,
+      startDate: contractForm.startDate,
+      endDate: contractForm.endDate,
+      totalPrice: Number(contractForm.totalPrice),
+      memo: contractForm.memo || null,
+    })
+    setContractModal(null)
+    load()
+  }
+
   async function openContractEdit(row) {
     const res = await client.get(`/admin/contracts/${row.contractId}`)
     const c = res.data
@@ -179,7 +199,10 @@ export default function UnitsPage() {
     <div className="p-12 px-14 max-w-[1700px]">
       <div className="flex justify-between items-center mb-7">
         <h1 className="text-[22px] font-extrabold tracking-tight text-slate-900">유닛 관리</h1>
-        <button className="btn-primary" onClick={openCreate}>+ 유닛 추가</button>
+        <div className="flex gap-2">
+          <button className="btn-primary" onClick={openNewContract}>+ 새로운 계약</button>
+          <button className="btn-outline" onClick={openCreate}>+ 유닛 추가</button>
+        </div>
       </div>
 
       <DataTable
@@ -370,6 +393,103 @@ export default function UnitsPage() {
                 confirmLabel: '저장',
                 confirmClass: 'bg-orange-500 hover:bg-orange-600',
                 onConfirm: async () => { setConfirmModal(null); await saveContractEdit() },
+              })}>저장</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {contractModal === 'create' && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[3px]" onClick={() => setContractModal(null)}>
+          <div className="bg-white rounded-[20px] p-9 w-full max-w-[620px] max-h-[90vh] overflow-y-auto shadow-[0_25px_60px_rgba(0,0,0,0.25)]" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight">새로운 계약</h2>
+            <div className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-2.5 items-start mb-5">
+              <label className="text-[13px] font-semibold text-slate-700 pt-2">유닛 *</label>
+              <select
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
+                value={contractForm.unitId}
+                onChange={(e) => setContract('unitId', e.target.value)}
+              >
+                <option value="">유닛 선택</option>
+                {units.filter((u) => u.status === 'AVAILABLE').sort((a, b) => a.unitNumber.localeCompare(b.unitNumber)).map((u) => (
+                  <option key={u.id} value={u.id}>{u.unitNumber} ({u.size})</option>
+                ))}
+              </select>
+              <label className="text-[13px] font-semibold text-slate-700 pt-2">고객명 *</label>
+              <input
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
+                value={contractForm.customerName}
+                onChange={(e) => setContract('customerName', e.target.value)}
+                placeholder="홍길동"
+              />
+              <label className="text-[13px] font-semibold text-slate-700 pt-2">연락처 *</label>
+              <input
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
+                value={contractForm.customerPhone}
+                onChange={(e) => setContract('customerPhone', e.target.value)}
+                placeholder="010-0000-0000"
+              />
+              <label className="text-[13px] font-semibold text-slate-700 pt-2">주소</label>
+              <input
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
+                value={contractForm.customerAddress}
+                onChange={(e) => setContract('customerAddress', e.target.value)}
+                placeholder="서울시 강남구 ..."
+              />
+              <label className="text-[13px] font-semibold text-slate-700 pt-2">시작일 *</label>
+              <div className="flex flex-col gap-1.5">
+                <input
+                  type="date"
+                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
+                  value={contractForm.startDate}
+                  onChange={(e) => setContract('startDate', e.target.value)}
+                />
+                <div className="flex gap-1.5">
+                  {[3, 6, 12].map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      className="flex-1 py-1 rounded-md border-[1.5px] border-slate-200 bg-slate-50 text-[12px] font-semibold text-slate-600 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                      disabled={!contractForm.startDate}
+                      onClick={() => applyDuration(m)}
+                    >
+                      {m}개월
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <label className="text-[13px] font-semibold text-slate-700 pt-2">종료일 *</label>
+              <input
+                type="date"
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
+                value={contractForm.endDate}
+                onChange={(e) => setContract('endDate', e.target.value)}
+              />
+              <label className="text-[13px] font-semibold text-slate-700 pt-2">계약 금액 *</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
+                value={contractForm.totalPrice ? Number(contractForm.totalPrice).toLocaleString() : ''}
+                onChange={(e) => setContract('totalPrice', e.target.value.replace(/[^0-9]/g, ''))}
+                placeholder="0"
+              />
+              <label className="text-[13px] font-semibold text-slate-700 pt-2">기타</label>
+              <textarea
+                rows={3}
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px] resize-none"
+                value={contractForm.memo}
+                onChange={(e) => setContract('memo', e.target.value)}
+                placeholder="기타 사항을 입력하세요"
+              />
+            </div>
+            <div className="flex justify-end gap-2 mt-2">
+              <button className="btn-ghost" onClick={() => setContractModal(null)}>취소</button>
+              <button className="btn-primary" onClick={() => setConfirmModal({
+                message: '새로운 계약을 저장하시겠습니까?',
+                confirmLabel: '저장',
+                confirmClass: 'bg-orange-500 hover:bg-orange-600',
+                onConfirm: async () => { setConfirmModal(null); await saveNewContract() },
               })}>저장</button>
             </div>
           </div>

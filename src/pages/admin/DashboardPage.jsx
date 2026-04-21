@@ -112,7 +112,7 @@ function StatsTable({ items, mode, valueKey, totalKey, formatCell, formatTotal }
         <table className="w-full border-collapse text-[12px]">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
-              <th className="text-left p-2.5 px-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-16">
+              <th className="text-center p-2.5 px-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-16">
                 기간
               </th>
               {UNIT_SIZES.map((s) => (
@@ -127,7 +127,7 @@ function StatsTable({ items, mode, valueKey, totalKey, formatCell, formatTotal }
           <tbody>
             {items.map((item) => (
               <tr key={item.label} className="border-b border-slate-100 hover:bg-slate-50">
-                <td className="p-2.5 px-2 font-semibold text-slate-600">
+                <td className="p-2.5 px-2 font-semibold text-slate-600 text-center">
                   {toChartLabel(item.label, mode)}
                 </td>
                 {UNIT_SIZES.map((s) => (
@@ -143,7 +143,7 @@ function StatsTable({ items, mode, valueKey, totalKey, formatCell, formatTotal }
           </tbody>
           <tfoot>
             <tr className="bg-slate-50 border-t border-slate-200">
-              <td className="p-2.5 px-2 font-bold text-slate-500 text-[11px] uppercase tracking-wider">합계</td>
+              <td className="p-2.5 px-2 font-bold text-slate-500 text-[11px] uppercase tracking-wider text-center">합계</td>
               {UNIT_SIZES.map((s) => (
                 <td key={s} className="p-2.5 px-1.5 text-right font-bold text-slate-700">
                   {grandBySize[s] ? formatCell(grandBySize[s]) : <span className="text-slate-300">-</span>}
@@ -310,7 +310,7 @@ function StatsSection() {
             </div>
 
             {/* 오른쪽: 토글 표 */}
-            <div className="xl:w-[680px]">
+            <div className="xl:w-[580px]">
               <div className="flex items-center justify-between mb-4">
                 <div className="text-[13px] font-bold text-slate-600">
                   {tableView === 'count' ? '계약 건수 상세' : '계약 금액 상세'}

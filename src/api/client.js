@@ -12,7 +12,7 @@ client.interceptors.request.use((config) => {
 client.interceptors.response.use(
   (res) => res.data,
   (err) => {
-    if (err.response?.status === 401) {
+    if (err.response?.status === 401 && !err.config?.url?.includes('/admin/auth/login')) {
       localStorage.removeItem('token')
       window.location.href = '/admin/login'
       return Promise.reject(err)
