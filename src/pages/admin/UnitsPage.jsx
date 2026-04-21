@@ -257,6 +257,8 @@ export default function UnitsPage() {
       {confirmModal && (
         <ConfirmModal
           message={confirmModal.message}
+          confirmLabel={confirmModal.confirmLabel}
+          confirmClass={confirmModal.confirmClass}
           onConfirm={confirmModal.onConfirm}
           onCancel={() => setConfirmModal(null)}
         />
@@ -325,7 +327,12 @@ export default function UnitsPage() {
             </div>
             <div className="flex justify-end gap-2 mt-2">
               <button className="btn-ghost" onClick={() => setContractModal(null)}>취소</button>
-              <button className="btn-primary" onClick={saveContractEdit}>저장</button>
+              <button className="btn-primary" onClick={() => setConfirmModal({
+                message: '계약 정보를 저장하시겠습니까?',
+                confirmLabel: '저장',
+                confirmClass: 'bg-orange-500 hover:bg-orange-600',
+                onConfirm: async () => { setConfirmModal(null); await saveContractEdit() },
+              })}>저장</button>
             </div>
           </div>
         </div>
