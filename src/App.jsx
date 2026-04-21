@@ -8,6 +8,7 @@ import AdminLayout from './components/AdminLayout.jsx'
 import DashboardPage from './pages/admin/DashboardPage.jsx'
 import UnitsPage from './pages/admin/UnitsPage.jsx'
 import InquiriesPage from './pages/admin/InquiriesPage.jsx'
+import ContractsPage from './pages/admin/ContractsPage.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import ErrorModal from './components/ErrorModal.jsx'
 
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="units" element={<UnitsPage />} />
           <Route path="inquiries" element={<InquiriesPage />} />
+          <Route path="contracts" element={<ContractsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

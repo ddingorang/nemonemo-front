@@ -8,6 +8,7 @@ const NAVY_BORDER = 'rgba(255,255,255,0.07)'
 const NAV_ITEMS = [
   { to: '/admin/dashboard', label: '대시보드' },
   { to: '/admin/units', label: '유닛 관리' },
+  { to: '/admin/contracts', label: '계약 조회' },
   { to: '/admin/inquiries', label: '문의 관리' },
 ]
 
