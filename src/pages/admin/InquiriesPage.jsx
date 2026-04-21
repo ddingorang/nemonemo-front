@@ -87,9 +87,11 @@ export default function InquiriesPage() {
       )}
 
       {detailModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[3px]" onClick={() => setDetailModal(null)}>
-          <div className="bg-white rounded-[20px] p-9 w-full max-w-[620px] max-h-[90vh] overflow-y-auto shadow-[0_25px_60px_rgba(0,0,0,0.25)]" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight">문의 상세 #{detailModal.id}</h2>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[4px]" onClick={() => setDetailModal(null)}>
+          <div className="bg-white rounded-2xl overflow-hidden w-full max-w-[620px] max-h-[90vh] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]" onClick={(e) => e.stopPropagation()}>
+            <div className="h-1.5 bg-orange-500 shrink-0" />
+            <div className="p-8 overflow-y-auto">
+            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight flex items-center gap-2.5"><span className="w-1 h-5 bg-orange-500 rounded-full shrink-0" />문의 상세 <span className="text-slate-400 font-bold">#{detailModal.id}</span></h2>
             <div className="grid grid-cols-[110px_1fr] gap-x-3 gap-y-2.5 mb-5 text-[13px]">
               <span className="font-semibold text-slate-500">고객명</span><span>{detailModal.customerName}</span>
               <span className="font-semibold text-slate-500">연락처</span><span>{detailModal.customerPhone}</span>
@@ -128,9 +130,10 @@ export default function InquiriesPage() {
               />
               <button className="btn-sm btn-edit" onClick={saveMemo}>메모 저장</button>
             </div>
-            <div className="flex justify-between items-center mt-2">
+            <div className="border-t border-slate-100 pt-5 mt-2 flex justify-between items-center">
               <button className="btn-sm btn-delete" onClick={() => deleteInquiry(detailModal.id)}>삭제</button>
               <button className="btn-ghost" onClick={() => setDetailModal(null)}>닫기</button>
+            </div>
             </div>
           </div>
         </div>

@@ -251,9 +251,11 @@ export default function UnitsPage() {
       />
 
       {modal === 'create' && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[3px]" onClick={() => setModal(null)}>
-          <div className="bg-white rounded-[20px] p-9 w-full max-w-[480px] max-h-[90vh] overflow-y-auto shadow-[0_25px_60px_rgba(0,0,0,0.25)]" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight">유닛 추가</h2>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[4px]" onClick={() => setModal(null)}>
+          <div className="bg-white rounded-2xl overflow-hidden w-full max-w-[480px] max-h-[90vh] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]" onClick={(e) => e.stopPropagation()}>
+            <div className="h-1.5 bg-orange-500 shrink-0" />
+            <div className="p-8 overflow-y-auto">
+            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight flex items-center gap-2.5"><span className="w-1 h-5 bg-orange-500 rounded-full shrink-0" />유닛 추가</h2>
             <div className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-2.5 items-center mb-5">
               <label className="text-[13px] font-semibold text-slate-700">유닛 번호</label>
               <input 
@@ -284,9 +286,10 @@ export default function UnitsPage() {
                 onChange={(e) => set('monthlyPrice', e.target.value.replace(/[^0-9]/g, ''))}
               />
             </div>
-            <div className="flex justify-end gap-2 mt-2">
+            <div className="border-t border-slate-100 pt-5 mt-5 flex justify-end gap-2">
               <button className="btn-ghost" onClick={() => setModal(null)}>취소</button>
               <button className="btn-primary" onClick={saveCreate}>저장</button>
+            </div>
             </div>
           </div>
         </div>
@@ -303,9 +306,11 @@ export default function UnitsPage() {
       )}
 
       {contractModal === 'edit' && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[3px]" onClick={() => setContractModal(null)}>
-          <div className="bg-white rounded-[20px] p-9 w-full max-w-[620px] max-h-[90vh] overflow-y-auto shadow-[0_25px_60px_rgba(0,0,0,0.25)]" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight">계약 수정</h2>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[4px]" onClick={() => setContractModal(null)}>
+          <div className="bg-white rounded-2xl overflow-hidden w-full max-w-[620px] max-h-[90vh] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]" onClick={(e) => e.stopPropagation()}>
+            <div className="h-1.5 bg-orange-500 shrink-0" />
+            <div className="p-8 overflow-y-auto">
+            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight flex items-center gap-2.5"><span className="w-1 h-5 bg-orange-500 rounded-full shrink-0" />계약 수정</h2>
             <div className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-2.5 items-center mb-5">
               <label className="text-[13px] font-semibold text-slate-700">고객명 *</label>
               <input
@@ -386,7 +391,7 @@ export default function UnitsPage() {
                 placeholder="기타 사항을 입력하세요"
               />
             </div>
-            <div className="flex justify-end gap-2 mt-2">
+            <div className="border-t border-slate-100 pt-5 mt-5 flex justify-end gap-2">
               <button className="btn-ghost" onClick={() => setContractModal(null)}>취소</button>
               <button className="btn-primary" onClick={() => setConfirmModal({
                 message: '계약 정보를 저장하시겠습니까?',
@@ -395,14 +400,17 @@ export default function UnitsPage() {
                 onConfirm: async () => { setConfirmModal(null); await saveContractEdit() },
               })}>저장</button>
             </div>
+            </div>
           </div>
         </div>
       )}
 
       {contractModal === 'create' && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[3px]" onClick={() => setContractModal(null)}>
-          <div className="bg-white rounded-[20px] p-9 w-full max-w-[620px] max-h-[90vh] overflow-y-auto shadow-[0_25px_60px_rgba(0,0,0,0.25)]" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight">새로운 계약</h2>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[4px]" onClick={() => setContractModal(null)}>
+          <div className="bg-white rounded-2xl overflow-hidden w-full max-w-[620px] max-h-[90vh] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]" onClick={(e) => e.stopPropagation()}>
+            <div className="h-1.5 bg-orange-500 shrink-0" />
+            <div className="p-8 overflow-y-auto">
+            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight flex items-center gap-2.5"><span className="w-1 h-5 bg-orange-500 rounded-full shrink-0" />새로운 계약</h2>
             <div className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-2.5 items-start mb-5">
               <label className="text-[13px] font-semibold text-slate-700 pt-2">유닛 *</label>
               <select
@@ -483,7 +491,7 @@ export default function UnitsPage() {
                 placeholder="기타 사항을 입력하세요"
               />
             </div>
-            <div className="flex justify-end gap-2 mt-2">
+            <div className="border-t border-slate-100 pt-5 mt-5 flex justify-end gap-2">
               <button className="btn-ghost" onClick={() => setContractModal(null)}>취소</button>
               <button className="btn-primary" onClick={() => setConfirmModal({
                 message: '새로운 계약을 저장하시겠습니까?',
@@ -492,14 +500,17 @@ export default function UnitsPage() {
                 onConfirm: async () => { setConfirmModal(null); await saveNewContract() },
               })}>저장</button>
             </div>
+            </div>
           </div>
         </div>
       )}
 
       {statusModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[3px]" onClick={() => setStatusModal(null)}>
-          <div className="bg-white rounded-[20px] p-9 w-full max-w-[480px] max-h-[90vh] overflow-y-auto shadow-[0_25px_60px_rgba(0,0,0,0.25)]" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight">{statusModal.unitNumber} 상태 변경</h2>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[4px]" onClick={() => setStatusModal(null)}>
+          <div className="bg-white rounded-2xl overflow-hidden w-full max-w-[480px] shadow-[0_20px_60px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]" onClick={(e) => e.stopPropagation()}>
+            <div className="h-1.5 bg-orange-500" />
+            <div className="p-8">
+            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight flex items-center gap-2.5"><span className="w-1 h-5 bg-orange-500 rounded-full shrink-0" />{statusModal.unitNumber} 상태 변경</h2>
             <div className="flex flex-wrap gap-2 mb-2">
               {STATUSES.map((s) => (
                 <button
@@ -515,8 +526,9 @@ export default function UnitsPage() {
                 </button>
               ))}
             </div>
-            <div className="flex justify-end gap-2 mt-2">
-              <button className="btn-ghost" onClick={() => setStatusModal(null)}>취소</button>
+            <div className="border-t border-slate-100 pt-5 mt-5 flex justify-end">
+              <button className="btn-ghost" onClick={() => setStatusModal(null)}>닫기</button>
+            </div>
             </div>
           </div>
         </div>
