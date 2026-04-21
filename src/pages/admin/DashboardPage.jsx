@@ -14,11 +14,11 @@ import client from '../../api/client.js'
 
 const UNIT_SIZES = ['XS', 'S', 'M', 'L', 'XL']
 const SIZE_COLORS = {
-  XS: '#94a3b8',
-  S: '#60a5fa',
-  M: '#4ade80',
-  L: '#fb923c',
-  XL: '#a78bfa',
+  XS: '#818cf8',
+  S:  '#4ade80',
+  M:  '#38bdf8',
+  L:  '#fb923c',
+  XL: '#f43f5e',
 }
 
 const SIZE_BADGE_COLORS = {
@@ -112,30 +112,30 @@ function StatsTable({ items, mode, valueKey, totalKey, formatCell, formatTotal }
         <table className="w-full border-collapse text-[12px]">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
-              <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-16">
+              <th className="text-left p-2.5 px-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-16">
                 기간
               </th>
               {UNIT_SIZES.map((s) => (
-                <th key={s} className="text-right p-2.5 px-3 text-[11px] font-bold uppercase tracking-wider"
+                <th key={s} className="text-right p-2.5 px-1.5 text-[11px] font-bold uppercase tracking-wider"
                   style={{ color: SIZE_COLORS[s] }}>
                   {s}
                 </th>
               ))}
-              <th className="text-right p-2.5 px-4 text-[11px] font-bold text-slate-500 uppercase tracking-wider">합계</th>
+              <th className="text-right p-2.5 px-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider">합계</th>
             </tr>
           </thead>
           <tbody>
             {items.map((item) => (
               <tr key={item.label} className="border-b border-slate-100 hover:bg-slate-50">
-                <td className="p-2.5 px-4 font-semibold text-slate-600">
+                <td className="p-2.5 px-2 font-semibold text-slate-600">
                   {toChartLabel(item.label, mode)}
                 </td>
                 {UNIT_SIZES.map((s) => (
-                  <td key={s} className="p-2.5 px-3 text-right text-slate-700">
+                  <td key={s} className="p-2.5 px-1.5 text-right text-slate-700">
                     {item[valueKey]?.[s] ? formatCell(item[valueKey][s]) : <span className="text-slate-300">-</span>}
                   </td>
                 ))}
-                <td className="p-2.5 px-4 text-right font-bold text-slate-800">
+                <td className="p-2.5 px-2 text-right font-bold text-slate-800">
                   {formatTotal(item[totalKey] ?? 0)}
                 </td>
               </tr>
@@ -143,13 +143,13 @@ function StatsTable({ items, mode, valueKey, totalKey, formatCell, formatTotal }
           </tbody>
           <tfoot>
             <tr className="bg-slate-50 border-t border-slate-200">
-              <td className="p-2.5 px-4 font-bold text-slate-500 text-[11px] uppercase tracking-wider">합계</td>
+              <td className="p-2.5 px-2 font-bold text-slate-500 text-[11px] uppercase tracking-wider">합계</td>
               {UNIT_SIZES.map((s) => (
-                <td key={s} className="p-2.5 px-3 text-right font-bold text-slate-700">
+                <td key={s} className="p-2.5 px-1.5 text-right font-bold text-slate-700">
                   {grandBySize[s] ? formatCell(grandBySize[s]) : <span className="text-slate-300">-</span>}
                 </td>
               ))}
-              <td className="p-2.5 px-4 text-right font-extrabold text-orange-600">
+              <td className="p-2.5 px-2 text-right font-extrabold text-orange-600">
                 {formatTotal(grandTotal)}
               </td>
             </tr>
@@ -158,6 +158,24 @@ function StatsTable({ items, mode, valueKey, totalKey, formatCell, formatTotal }
       </div>
     </div>
   )
+}
+
+function makeRoundedBar(key) {
+  return function RoundedTopBar({ x, y, width, height, fill, payload }) {
+    if (!height || height <= 0 || !width || width <= 0) return null
+    const idx = UNIT_SIZES.indexOf(key)
+    const isTopmost = UNIT_SIZES.slice(idx + 1).every((s) => !(payload?.[s] > 0))
+    if (!isTopmost) {
+      return <rect x={x} y={y} width={width} height={height} fill={fill} />
+    }
+    const r = 4
+    return (
+      <path
+        d={`M${x},${y + r} Q${x},${y} ${x + r},${y} H${x + width - r} Q${x + width},${y} ${x + width},${y + r} V${y + height} H${x} Z`}
+        fill={fill}
+      />
+    )
+  }
 }
 
 function StatsSection() {
@@ -261,9 +279,9 @@ function StatsSection() {
                     <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} allowDecimals={false} />
                     <Tooltip content={<CustomTooltipCount />} />
-                    <Legend wrapperStyle={{ fontSize: 12 }} />
+                    <Legend wrapperStyle={{ fontSize: 12 }} payload={UNIT_SIZES.map((s) => ({ value: s, type: 'rect', color: SIZE_COLORS[s] }))} />
                     {UNIT_SIZES.map((size) => (
-                      <Bar key={size} dataKey={size} stackId="a" fill={SIZE_COLORS[size]} radius={size === 'XL' ? [4, 4, 0, 0] : [0, 0, 0, 0]} />
+                      <Bar key={size} dataKey={size} stackId="a" fill={SIZE_COLORS[size]} shape={makeRoundedBar(size)} />
                     ))}
                   </BarChart>
                 </ResponsiveContainer>
@@ -282,9 +300,9 @@ function StatsSection() {
                       tickFormatter={(v) => `${v.toLocaleString()}`}
                     />
                     <Tooltip content={<CustomTooltipRevenue />} />
-                    <Legend wrapperStyle={{ fontSize: 12 }} />
+                    <Legend wrapperStyle={{ fontSize: 12 }} payload={UNIT_SIZES.map((s) => ({ value: s, type: 'rect', color: SIZE_COLORS[s] }))} />
                     {UNIT_SIZES.map((size) => (
-                      <Bar key={size} dataKey={size} stackId="a" fill={SIZE_COLORS[size]} radius={size === 'XL' ? [4, 4, 0, 0] : [0, 0, 0, 0]} />
+                      <Bar key={size} dataKey={size} stackId="a" fill={SIZE_COLORS[size]} shape={makeRoundedBar(size)} />
                     ))}
                   </BarChart>
                 </ResponsiveContainer>
@@ -292,7 +310,7 @@ function StatsSection() {
             </div>
 
             {/* 오른쪽: 토글 표 */}
-            <div className="xl:w-[520px]">
+            <div className="xl:w-[680px]">
               <div className="flex items-center justify-between mb-4">
                 <div className="text-[13px] font-bold text-slate-600">
                   {tableView === 'count' ? '계약 건수 상세' : '계약 금액 상세'}
@@ -331,8 +349,8 @@ function StatsSection() {
                   mode={mode}
                   valueKey="totalRevenueByUnitSize"
                   totalKey="totalRevenue"
-                  formatCell={(v) => `${Math.round(v / 10000).toLocaleString()}만`}
-                  formatTotal={(v) => `${Math.round(v / 10000).toLocaleString()}만`}
+                  formatCell={(v) => `${Number(v).toLocaleString()}`}
+                  formatTotal={(v) => `${Number(v).toLocaleString()}원`}
                 />
               )}
             </div>
@@ -370,20 +388,20 @@ export default function DashboardPage() {
           <div className="text-[11px] font-bold text-orange-600/60 uppercase tracking-widest mb-3">사용 중</div>
           <div className="text-[42px] font-extrabold tracking-tighter leading-none text-orange-600">{s.occupied}</div>
         </div>
-        <div className="bg-slate-50 rounded-2xl p-6 px-7 border-[1.5px] border-slate-300 shadow-sm transition-shadow hover:shadow-md">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">점검 중</div>
-          <div className="text-[42px] font-extrabold tracking-tighter leading-none text-slate-500">{s.maintenance}</div>
+        <div className="bg-amber-50 rounded-2xl p-6 px-7 border-[1.5px] border-amber-200 shadow-sm transition-shadow hover:shadow-md">
+          <div className="text-[11px] font-bold text-amber-600/60 uppercase tracking-widest mb-3">만료 예정</div>
+          <div className="text-[42px] font-extrabold tracking-tighter leading-none text-amber-600">{expiringThisMonth.length}</div>
         </div>
-        <div className="bg-yellow-50 rounded-2xl p-6 px-7 border-[1.5px] border-yellow-200 shadow-sm transition-shadow hover:shadow-md">
-          <div className="text-[11px] font-bold text-yellow-600/60 uppercase tracking-widest mb-3">미처리 문의</div>
-          <div className="text-[42px] font-extrabold tracking-tighter leading-none text-yellow-600">{pendingInquiryCount}</div>
+        <div className="bg-violet-50 rounded-2xl p-6 px-7 border-[1.5px] border-violet-200 shadow-sm transition-shadow hover:shadow-md">
+          <div className="text-[11px] font-bold text-violet-600/60 uppercase tracking-widest mb-3">미처리 문의</div>
+          <div className="text-[42px] font-extrabold tracking-tighter leading-none text-violet-600">{pendingInquiryCount}</div>
         </div>
       </div>
 
       <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm mb-8">
         <h2 className="text-lg font-bold mb-6 text-slate-900 flex items-center gap-2">
           <span className="w-1.5 h-6 bg-orange-500 rounded-full" />
-          이번 달 만료 예정 계약 ({expiringThisMonth.length}건)
+          만료 예정 계약 ({expiringThisMonth.length}건)
         </h2>
         {expiringThisMonth.length === 0 ? (
           <p className="text-slate-400 text-[13px] py-5">이번 달 만료 예정 계약이 없습니다.</p>
@@ -394,7 +412,8 @@ export default function DashboardPage() {
                 <tr className="bg-slate-50 border-b border-slate-200">
                   <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">유닛</th>
                   <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">고객명</th>
-                  <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">연락처</th>
+                  <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-[150px]">연락처</th>
+                  <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">시작일</th>
                   <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">종료일</th>
                   <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">잔여일</th>
                   <th className="text-left p-2.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">계약 금액</th>
@@ -413,6 +432,7 @@ export default function DashboardPage() {
                     </td>
                     <td className="p-3 px-4 border-b border-slate-100">{c.customerName}</td>
                     <td className="p-3 px-4 border-b border-slate-100">{c.customerPhone}</td>
+                    <td className="p-3 px-4 border-b border-slate-100">{c.startDate}</td>
                     <td className="p-3 px-4 border-b border-slate-100 text-yellow-600 font-semibold">{c.endDate}</td>
                     <td className="p-3 px-4 border-b border-slate-100">
                       {(() => {

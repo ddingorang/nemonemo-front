@@ -139,13 +139,13 @@ export default function HomePage() {
   xlAll.slice(0, 4).forEach((u, i) => { sec4[3 + i] = u })
 
   function renderCell(unit, key, halfHeight = false) {
-    if (!unit) return <div key={key} className={halfHeight ? 'h-11' : 'h-16'} />
+    if (!unit) return <div key={key} className={halfHeight ? 'h-14' : 'h-20'} />
     const overlay = statusOverlay(unit)
     const expiring = isExpiring(unit)
     return (
       <div
         key={unit.id}
-        className={`${halfHeight ? 'h-11' : 'h-16'} rounded-[3px] flex items-center justify-center cursor-default transition-all duration-150 hover:scale-110 hover:z-10 relative overflow-hidden`}
+        className={`${halfHeight ? 'h-14' : 'h-20'} rounded-[4px] flex items-center justify-center cursor-default transition-all duration-150 hover:scale-110 hover:z-10 relative overflow-hidden`}
         style={{
           backgroundColor: SIZE_COLOR[unit.size],
           boxShadow: hovered?.id === unit.id
@@ -160,8 +160,8 @@ export default function HomePage() {
       >
         {overlay && <div className="absolute inset-0" style={{ backgroundColor: overlay }} />}
         <div className="relative z-10 flex flex-col items-center leading-none select-none gap-0.5">
-          <span className="text-[9px] font-extrabold text-white/50">{unit.size}</span>
-          <span className="text-[10px] font-black text-white/70">{unit.unitNumber.slice(-2)}</span>
+          <span className="text-[11px] font-extrabold text-white/50">{unit.size}</span>
+          <span className="text-[13px] font-black text-white/70">{unit.unitNumber.slice(-2)}</span>
         </div>
       </div>
     )
@@ -177,12 +177,12 @@ export default function HomePage() {
       const leftCells = rowCells.slice(0, LEFT)
       const rightCells = rowCells.slice(LEFT)
       return (
-        <div key={`${keyPrefix}-row-${r}`} style={{ display: 'flex', gap: '3px', marginBottom: r < numRows - 1 ? '3px' : 0 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(13, minmax(0, 1fr))', gap: '3px', flexGrow: 13, flexBasis: 0 }}>
+        <div key={`${keyPrefix}-row-${r}`} style={{ display: 'flex', gap: '4px', marginBottom: r < numRows - 1 ? '4px' : 0 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(13, minmax(0, 1fr))', gap: '4px', flexGrow: 13, flexBasis: 0 }}>
             {leftCells.map((unit, i) => renderCell(unit, `${keyPrefix}-${r}-L-${i}`, halfHeight))}
           </div>
           <div style={{ width: '20px', flexShrink: 0 }} />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, minmax(0, 1fr))', gap: '3px', flexGrow: 12, flexBasis: 0 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, minmax(0, 1fr))', gap: '4px', flexGrow: 12, flexBasis: 0 }}>
             {rightCells.map((unit, i) => renderCell(unit, `${keyPrefix}-${r}-R-${i}`, halfHeight))}
           </div>
         </div>
@@ -241,7 +241,7 @@ export default function HomePage() {
               예약 문의하기 →
             </button>
             <button
-              onClick={() => document.getElementById('unit-grid')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => document.getElementById('unit-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
               className="px-8 py-3.5 rounded-lg font-semibold text-[15px] transition-all duration-200 hover:bg-white/10 border"
               style={{ color: 'rgba(255,255,255,0.85)', borderColor: 'rgba(255,255,255,0.2)' }}
             >
@@ -271,48 +271,48 @@ export default function HomePage() {
       </div>
 
       {/* ── Unit Grid ── */}
-      <section id="unit-grid" className="py-16 px-8 bg-white">
-        <div className="max-w-[1160px] mx-auto">
-          <div className="flex justify-between items-end mb-8 flex-wrap gap-4">
+      <section id="unit-grid" className="py-24 px-8 bg-white">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="flex justify-between items-end mb-10 flex-wrap gap-4">
             <div>
-              <p className="text-[12px] font-bold tracking-widest uppercase mb-1.5" style={{ color: '#f97316' }}>AVAILABILITY</p>
-              <h2 className="text-[26px] font-black text-slate-900 tracking-tight">실시간 창고 현황</h2>
+              <p className="text-[14px] font-bold tracking-widest uppercase mb-2" style={{ color: '#f97316' }}>AVAILABILITY</p>
+              <h2 className="text-[28px] font-black text-slate-900 tracking-tight">실시간 창고 현황</h2>
             </div>
-            <div className="flex flex-col items-end gap-2.5">
+            <div className="flex flex-col items-end gap-3">
               {/* 사이즈 색상 범례 */}
-              <div className="flex items-center gap-2 flex-wrap justify-end">
+              <div className="flex items-center gap-3 flex-wrap justify-end">
                 {Object.entries(SIZE_COLOR).map(([size, color]) => (
-                  <span key={size} className="flex items-center gap-1.5 text-[12px] text-slate-500">
-                    <span className="inline-block w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: color }} />
+                  <span key={size} className="flex items-center gap-2 text-[14px] text-slate-500">
+                    <span className="inline-block w-4 h-4 rounded-sm shrink-0" style={{ backgroundColor: color }} />
                     {size}
                   </span>
                 ))}
               </div>
               {/* 상태 범례 */}
-              <div className="flex items-center gap-3 text-[12px] text-slate-400 flex-wrap justify-end">
-                <span className="flex items-center gap-1.5">
-                  <span className="inline-block w-3 h-3 rounded-sm bg-slate-300 shrink-0" />이용 가능 <strong className="text-slate-500">({stats.available})</strong>
+              <div className="flex items-center gap-4 text-[14px] text-slate-400 flex-wrap justify-end">
+                <span className="flex items-center gap-2">
+                  <span className="inline-block w-4 h-4 rounded-sm bg-slate-300 shrink-0" />이용 가능 <strong className="text-slate-500">({stats.available})</strong>
                 </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="inline-block w-3 h-3 rounded-sm bg-slate-500 shrink-0" />사용 중 <strong className="text-slate-500">({stats.occupied})</strong>
+                <span className="flex items-center gap-2">
+                  <span className="inline-block w-4 h-4 rounded-sm bg-slate-500 shrink-0" />사용 중 <strong className="text-slate-500">({stats.occupied})</strong>
                 </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="inline-block w-3 h-3 rounded-sm bg-slate-300 shrink-0 ring-2 ring-amber-400 ring-offset-1" />만료 임박 <strong className="text-slate-500">({stats.expiring})</strong>
+                <span className="flex items-center gap-2">
+                  <span className="inline-block w-4 h-4 rounded-sm bg-slate-300 shrink-0 ring-2 ring-amber-400 ring-offset-1" />만료 임박 <strong className="text-slate-500">({stats.expiring})</strong>
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl p-6 md:p-8 border-2 border-slate-100 overflow-x-auto" style={{ backgroundColor: '#f8fafc' }}>
-            <div style={{ minWidth: '720px' }}>
+          <div className="rounded-2xl p-8 md:p-10 border-2 border-slate-100 overflow-x-auto" style={{ backgroundColor: '#f8fafc' }}>
+            <div style={{ minWidth: '900px' }}>
 
               {/* XS: 25×2, 반 높이 (상하 적층) */}
-              <div className="grid gap-[3px]" style={{ gridTemplateColumns: 'repeat(25, minmax(0, 1fr))' }}>
+              <div className="grid gap-[4px]" style={{ gridTemplateColumns: 'repeat(25, minmax(0, 1fr))' }}>
                 {xsGrid.map((unit, i) => renderCell(unit, `xs-${i}`, true))}
               </div>
 
               {/* 복도 */}
-              <div className="my-3">
+              <div className="my-4">
                 <div className="border-t border-dashed border-slate-300" />
               </div>
 
@@ -320,7 +320,7 @@ export default function HomePage() {
               {renderSplitRows(sBlock1, 's1')}
 
               {/* 복도 */}
-              <div className="my-3">
+              <div className="my-4">
                 <div className="border-t border-dashed border-slate-300" />
               </div>
 
@@ -328,7 +328,7 @@ export default function HomePage() {
               {renderSplitRows(sec3, 's3')}
 
               {/* 간격 */}
-              <div className="my-3" />
+              <div className="my-4" />
 
               {/* S(3) + XL(4), 13열 기준 복도 공백 */}
               {renderSplitRows(sec4, 's4')}
@@ -336,7 +336,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <p className="text-center text-[12px] text-slate-400 mt-4">
+          <p className="text-center text-[14px] text-slate-400 mt-5">
             유닛 위에 마우스를 올리면 상세 정보를 확인할 수 있습니다.
           </p>
         </div>
