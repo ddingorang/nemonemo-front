@@ -18,7 +18,7 @@ function statusOverlay(unit) {
   if (s === 'OCCUPIED' && unit.expiringSoon) return 'rgba(0,0,0,0.22)'
   if (s === 'OCCUPIED') return 'rgba(0,0,0,0.35)'
   if (s === 'RESERVED') return 'rgba(255,255,255,0.32)'
-  return 'rgba(15,23,42,0.58)'
+  return null
 }
 
 function unitColorLabel(unit) {
@@ -27,7 +27,7 @@ function unitColorLabel(unit) {
   if (s === 'OCCUPIED' && unit.expiringSoon) return '만료 임박 (7일 이내)'
   if (s === 'OCCUPIED') return '사용 중'
   if (s === 'RESERVED') return '예약됨'
-  return '점검 중'
+  return '비활성화'
 }
 
 function statusBadgeStyle(unit) {
@@ -72,15 +72,15 @@ export default function WarehouseGrid({ units, adminMode = false }) {
   }
 
   function renderCell(unit, key, halfHeight = false) {
-    if (!unit) return <div key={key} className={halfHeight ? 'h-14' : 'h-20'} />
+    if (!unit) return <div key={key} className={halfHeight ? 'h-10' : 'h-14'} />
     const overlay  = statusOverlay(unit)
     const expiring = normalizeStatus(unit.status) === 'OCCUPIED' && unit.expiringSoon
     return (
       <div
         key={unit.id}
-        className={`${halfHeight ? 'h-14' : 'h-20'} rounded-[4px] flex items-center justify-center cursor-default transition-all duration-150 hover:scale-110 hover:z-10 relative overflow-hidden`}
+        className={`${halfHeight ? 'h-10' : 'h-14'} rounded-[4px] flex items-center justify-center cursor-default transition-all duration-150 hover:scale-110 hover:z-10 relative overflow-hidden`}
         style={{
-          backgroundColor: SIZE_COLOR[unit.size],
+          backgroundColor: normalizeStatus(unit.status) === 'DISABLED' ? '#94a3b8' : SIZE_COLOR[unit.size],
           boxShadow: hovered?.id === unit.id
             ? '0 0 0 2px #f97316'
             : expiring
@@ -153,7 +153,7 @@ export default function WarehouseGrid({ units, adminMode = false }) {
         </div>
       </div>
 
-      <div className="rounded-2xl p-6 border border-slate-100 overflow-x-auto" style={{ backgroundColor: '#f8fafc' }}>
+      <div className="rounded-2xl p-4 border border-slate-100 overflow-x-auto" style={{ backgroundColor: '#f8fafc' }}>
         <div style={{ minWidth: '900px' }}>
           <div className="grid gap-[4px]" style={{ gridTemplateColumns: 'repeat(25, minmax(0, 1fr))' }}>
             {xsGrid.map((unit, i) => renderCell(unit, `xs-${i}`, true))}

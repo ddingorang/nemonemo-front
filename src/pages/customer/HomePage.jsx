@@ -25,7 +25,7 @@ function statusOverlay(unit) {
   if (unit.status === 'OCCUPIED' && unit.expiringSoon) return 'rgba(0,0,0,0.22)'
   if (unit.status === 'OCCUPIED') return 'rgba(0,0,0,0.35)'
   if (unit.status === 'RESERVED') return 'rgba(255,255,255,0.32)'
-  return 'rgba(15,23,42,0.58)' // MAINTENANCE
+  return 'rgba(15,23,42,0.58)' // DISABLED
 }
 
 // 만료 임박 여부 (테두리로 강조)
@@ -38,7 +38,7 @@ function unitColorLabel(unit) {
   if (unit.status === 'OCCUPIED' && unit.expiringSoon) return '만료 임박 (7일 이내)'
   if (unit.status === 'OCCUPIED') return '사용 중'
   if (unit.status === 'RESERVED') return '예약됨'
-  return '점검 중'
+  return '비활성화'
 }
 
 // 툴팁 뱃지용

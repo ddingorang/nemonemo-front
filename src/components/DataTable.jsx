@@ -1,7 +1,7 @@
 // Created: 2026-04-08 23:14:37
 import { useState } from 'react'
 
-export default function DataTable({ columns, rows, onEdit, onDelete, actions, serverPage, serverTotalPages, serverTotalCount, onServerPageChange, headerExtra, selectedId, onSelect }) {
+export default function DataTable({ columns, rows, onEdit, onDelete, actions, serverPage, serverTotalPages, serverTotalCount, onServerPageChange, headerExtra, selectedId, onSelect, rowClass }) {
   const isServerPaged = serverPage !== undefined
 
   const [sortKey, setSortKey] = useState(null)
@@ -81,7 +81,7 @@ export default function DataTable({ columns, rows, onEdit, onDelete, actions, se
             {paged.length === 0 ? (
               <tr><td colSpan={columns.length + (onSelect ? 2 : 1)} className="text-center text-slate-400 p-16">데이터가 없습니다.</td></tr>
             ) : paged.map((row, i) => (
-              <tr key={row.id ?? i} className={`transition-colors ${onSelect && row.id === selectedId ? 'bg-orange-50/60' : 'hover:bg-slate-50/80'}`}>
+              <tr key={row.id ?? i} className={`transition-colors ${onSelect && row.id === selectedId ? 'bg-orange-50/60' : 'hover:bg-slate-50/80'} ${rowClass ? rowClass(row) : ''}`}>
                 {onSelect && (
                   <td className="p-2.5 px-4 border-b border-slate-100 w-10">
                     <div className="flex items-center justify-center h-full">
@@ -95,7 +95,7 @@ export default function DataTable({ columns, rows, onEdit, onDelete, actions, se
                   </td>
                 )}
                 {columns.map((col) => (
-                  <td key={col.key} className="p-2.5 px-4 border-b border-slate-100 align-middle whitespace-nowrap text-slate-700 font-medium text-center">{col.render ? col.render(row[col.key], row) : (row[col.key] ?? '-')}</td>
+                  <td key={col.key} className={`p-2.5 px-4 border-b border-slate-100 align-middle whitespace-nowrap text-slate-700 font-medium text-center ${col.cellClass ? col.cellClass(row[col.key], row) : ''}`}>{col.render ? col.render(row[col.key], row) : (row[col.key] ?? '-')}</td>
                 ))}
                 {(onEdit || onDelete || actions) && (
                   <td className="p-2.5 px-4 border-b border-slate-100 align-middle whitespace-nowrap">

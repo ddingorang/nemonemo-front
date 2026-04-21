@@ -5,10 +5,10 @@ import DataTable from '../../components/DataTable.jsx'
 import ConfirmModal from '../../components/ConfirmModal.jsx'
 import WarehouseGrid from '../../components/WarehouseGrid.jsx'
 
-const STATUS_LABELS = { ACTIVE: '사용 중', EXPIRED: '만료', TERMINATED: '해지', AVAILABLE: '비어있음', OCCUPIED: '사용 중', RESERVED: '예약됨', MAINTENANCE: '점검 중' }
-const STATUS_CLASS = { ACTIVE: 'bg-green-100 text-green-700', EXPIRED: 'bg-slate-100 text-slate-500', TERMINATED: 'bg-red-100 text-red-500', AVAILABLE: 'bg-blue-100 text-blue-600', OCCUPIED: 'bg-green-100 text-green-700', RESERVED: 'bg-yellow-100 text-yellow-700', MAINTENANCE: 'bg-orange-100 text-orange-600' }
+const STATUS_LABELS = { ACTIVE: '사용 중', EXPIRED: '만료', TERMINATED: '해지', AVAILABLE: '비어있음', OCCUPIED: '사용 중', RESERVED: '예약됨', DISABLED: '비활성화', MAINTENANCE: '비활성화' }
+const STATUS_CLASS = { ACTIVE: 'bg-green-100 text-green-700', EXPIRED: 'bg-slate-100 text-slate-500', TERMINATED: 'bg-red-100 text-red-500', AVAILABLE: 'bg-blue-100 text-blue-600', OCCUPIED: 'bg-green-100 text-green-700', RESERVED: 'bg-yellow-100 text-yellow-700', DISABLED: 'bg-slate-100 text-slate-500', MAINTENANCE: 'bg-slate-100 text-slate-500' }
 const SIZES = ['S', 'M', 'L', 'XL']
-const STATUSES = ['AVAILABLE', 'OCCUPIED', 'RESERVED', 'MAINTENANCE']
+const STATUSES = ['AVAILABLE', 'OCCUPIED', 'RESERVED', 'DISABLED']
 
 const SIZE_ORDER = ['XS', 'S', 'M', 'L', 'XL']
 const SIZE_COLOR = { XS: '#818cf8', S: '#4ade80', M: '#38bdf8', L: '#fb923c', XL: '#f43f5e' }
@@ -178,13 +178,15 @@ export default function UnitsPage() {
         {v}
       </span>
     )},
-    { key: 'customerName', label: '사용 고객', sortable: true, width: '110px', render: (v) => v ?? '-' },
+    { key: 'customerName', label: '사용 고객', sortable: true, width: '110px', render: (v) => v ? <span className="font-semibold">{v}</span> : '-' },
     { key: 'customerPhone', label: '연락처', width: '140px', sortable: false, render: (v) => v ?? '-' },
     { key: 'createdAt', label: '계약 일자', sortable: true, width: '120px', render: (v) => v ? v.slice(0, 10) : '-' },
     { key: 'startDate', label: '시작일', sortable: true, width: '120px', render: (v) => v ?? '-' },
-    { key: 'endDate', label: '만료 예정일', sortable: true, width: '120px', render: (v, row) => v
-      ? <span className={row.expiringSoon ? 'text-orange-600 font-bold' : ''}>{v}</span>
-      : '-' },
+    { key: 'endDate', label: '만료 예정일', sortable: true, width: '120px',
+      cellClass: () => sizeFilter === null ? 'bg-orange-50' : '',
+      render: (v, row) => v
+        ? <span className={row.expiringSoon ? 'text-orange-600 font-bold' : ''}>{v}</span>
+        : '-' },
     { key: 'status', label: '상태', sortable: true, width: '110px', render: (v, row) => (
       row.expiringSoon && row.status === 'ACTIVE'
         ? <span className="inline-block px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-500">만료 임박</span>
@@ -217,6 +219,7 @@ export default function UnitsPage() {
         }
         selectedId={selectedUnit?.id}
         onSelect={setSelectedUnit}
+        rowClass={(row) => (row.status === 'DISABLED' || row.status === 'MAINTENANCE') ? 'bg-slate-100 text-slate-400' : ''}
         headerExtra={
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-1">
