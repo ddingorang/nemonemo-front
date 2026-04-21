@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import client from '../../api/client.js'
 import DataTable from '../../components/DataTable.jsx'
 import ConfirmModal from '../../components/ConfirmModal.jsx'
+import WarehouseGrid from '../../components/WarehouseGrid.jsx'
 
 const STATUS_LABELS = { ACTIVE: '사용 중', EXPIRED: '만료', TERMINATED: '해지', AVAILABLE: '비어있음', OCCUPIED: '사용 중', RESERVED: '예약됨', MAINTENANCE: '점검 중' }
 const STATUS_CLASS = { ACTIVE: 'bg-green-100 text-green-700', EXPIRED: 'bg-slate-100 text-slate-500', TERMINATED: 'bg-red-100 text-red-500', AVAILABLE: 'bg-blue-100 text-blue-600', OCCUPIED: 'bg-green-100 text-green-700', RESERVED: 'bg-yellow-100 text-yellow-700', MAINTENANCE: 'bg-orange-100 text-orange-600' }
@@ -205,6 +206,8 @@ export default function UnitsPage() {
         </div>
       </div>
 
+      <WarehouseGrid units={units} adminMode />
+
       <DataTable
         key={sizeFilter}
         columns={columns}
@@ -331,48 +334,31 @@ export default function UnitsPage() {
                 onChange={(e) => setContract('customerAddress', e.target.value)}
               />
               <label className="text-[13px] font-semibold text-slate-700">시작일 *</label>
-              <div className="flex flex-col gap-1.5">
-                <input
-                  type="date"
-                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
-                  value={contractForm.startDate}
-                  onChange={(e) => setContract('startDate', e.target.value)}
-                />
-                <div className="flex gap-1.5">
-                  {[3, 6, 12].map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      className="flex-1 py-1 rounded-md border-[1.5px] border-slate-200 bg-slate-50 text-[12px] font-semibold text-slate-600 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                      disabled={!contractForm.startDate}
-                      onClick={() => applyDuration(m)}
-                    >
-                      {m}개월
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <input
+                type="date"
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
+                value={contractForm.startDate}
+                onChange={(e) => setContract('startDate', e.target.value)}
+              />
               <label className="text-[13px] font-semibold text-slate-700">종료일 *</label>
-              <div className="flex flex-col gap-1.5">
+              <div className="flex gap-1.5">
                 <input
                   type="date"
-                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
+                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px] min-w-0"
                   value={contractForm.endDate}
                   onChange={(e) => setContract('endDate', e.target.value)}
                 />
-                <div className="flex gap-1.5">
-                  {[1, 3, 6].map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      className="flex-1 py-1 rounded-md border-[1.5px] border-slate-200 bg-slate-50 text-[12px] font-semibold text-slate-600 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                      disabled={!contractForm.endDate}
-                      onClick={() => extendEndDate(m)}
-                    >
-                      +{m}개월
-                    </button>
-                  ))}
-                </div>
+                {[1, 3, 6].map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    className="shrink-0 px-2.5 py-1 rounded-md border-[1.5px] border-slate-200 bg-slate-50 text-[12px] font-semibold text-slate-600 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    disabled={!contractForm.endDate}
+                    onClick={() => extendEndDate(m)}
+                  >
+                    +{m}개월
+                  </button>
+                ))}
               </div>
               <label className="text-[13px] font-semibold text-slate-700">계약 금액 *</label>
               <input
@@ -445,26 +431,24 @@ export default function UnitsPage() {
                 placeholder="서울시 강남구 ..."
               />
               <label className="text-[13px] font-semibold text-slate-700 pt-2">시작일 *</label>
-              <div className="flex flex-col gap-1.5">
+              <div className="flex gap-1.5">
                 <input
                   type="date"
-                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
+                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px] min-w-0"
                   value={contractForm.startDate}
                   onChange={(e) => setContract('startDate', e.target.value)}
                 />
-                <div className="flex gap-1.5">
-                  {[3, 6, 12].map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      className="flex-1 py-1 rounded-md border-[1.5px] border-slate-200 bg-slate-50 text-[12px] font-semibold text-slate-600 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                      disabled={!contractForm.startDate}
-                      onClick={() => applyDuration(m)}
-                    >
-                      {m}개월
-                    </button>
-                  ))}
-                </div>
+                {[1, 3, 6, 12].map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    className="shrink-0 px-2.5 py-1 rounded-md border-[1.5px] border-slate-200 bg-slate-50 text-[12px] font-semibold text-slate-600 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    disabled={!contractForm.startDate}
+                    onClick={() => applyDuration(m)}
+                  >
+                    {m}개월
+                  </button>
+                ))}
               </div>
               <label className="text-[13px] font-semibold text-slate-700 pt-2">종료일 *</label>
               <input
@@ -474,14 +458,27 @@ export default function UnitsPage() {
                 onChange={(e) => setContract('endDate', e.target.value)}
               />
               <label className="text-[13px] font-semibold text-slate-700 pt-2">계약 금액 *</label>
-              <input
-                type="text"
-                inputMode="numeric"
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
-                value={contractForm.totalPrice ? Number(contractForm.totalPrice).toLocaleString() : ''}
-                onChange={(e) => setContract('totalPrice', e.target.value.replace(/[^0-9]/g, ''))}
-                placeholder="0"
-              />
+              <div className="flex gap-1.5">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px] min-w-0"
+                  value={contractForm.totalPrice ? Number(contractForm.totalPrice).toLocaleString() : ''}
+                  onChange={(e) => setContract('totalPrice', e.target.value.replace(/[^0-9]/g, ''))}
+                  placeholder="0"
+                />
+                {[10, 15, 20].map((rate) => (
+                  <button
+                    key={rate}
+                    type="button"
+                    className="shrink-0 px-2.5 py-1 rounded-md border-[1.5px] border-slate-200 bg-slate-50 text-[12px] font-semibold text-slate-600 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    disabled={!contractForm.totalPrice}
+                    onClick={() => setContract('totalPrice', String(Math.round(Number(contractForm.totalPrice) * (1 - rate / 100))))}
+                  >
+                    -{rate}%
+                  </button>
+                ))}
+              </div>
               <label className="text-[13px] font-semibold text-slate-700 pt-2">기타</label>
               <textarea
                 rows={3}

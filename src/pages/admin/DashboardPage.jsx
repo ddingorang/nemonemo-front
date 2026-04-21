@@ -389,7 +389,7 @@ export default function DashboardPage() {
           <div className="text-[42px] font-extrabold tracking-tighter leading-none text-orange-600">{s.occupied}</div>
         </div>
         <div className="bg-amber-50 rounded-2xl p-6 px-7 border-[1.5px] border-amber-200 shadow-sm transition-shadow hover:shadow-md">
-          <div className="text-[11px] font-bold text-amber-600/60 uppercase tracking-widest mb-3">만료 임박 (14일)</div>
+          <div className="text-[11px] font-bold text-amber-600/60 uppercase tracking-widest mb-3">만료 임박 (7일)</div>
           <div className="text-[42px] font-extrabold tracking-tighter leading-none text-amber-600">{expiringThisMonth.length}</div>
         </div>
         <div className="bg-violet-50 rounded-2xl p-6 px-7 border-[1.5px] border-violet-200 shadow-sm transition-shadow hover:shadow-md">
@@ -401,7 +401,7 @@ export default function DashboardPage() {
       <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm mb-8">
         <h2 className="text-lg font-bold mb-6 text-slate-900 flex items-center gap-2">
           <span className="w-1.5 h-6 bg-orange-500 rounded-full" />
-          만료 임박 계약 — 14일 이내 ({expiringThisMonth.length}건)
+          만료 임박 계약 — 7일 이내 ({expiringThisMonth.length}건)
         </h2>
         {expiringThisMonth.length === 0 ? (
           <p className="text-slate-400 text-[13px] py-5">이번 달 만료 예정 계약이 없습니다.</p>
