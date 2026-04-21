@@ -63,6 +63,7 @@ export default function UnitsPage() {
         startDate: c?.startDate ?? null,
         endDate: c?.endDate ?? null,
         totalPrice: c?.totalPrice ?? null,
+        memo: c?.memo ?? null,
         expiringSoon: c?.expiringSoon ?? false,
       }
     })
@@ -233,13 +234,13 @@ export default function UnitsPage() {
             <div className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-2.5 items-center mb-5">
               <label className="text-[13px] font-semibold text-slate-700">유닛 번호</label>
               <input 
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
                 value={form.unitNumber} 
                 onChange={(e) => set('unitNumber', e.target.value)} 
               />
               <label className="text-[13px] font-semibold text-slate-700">사이즈</label>
               <select
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
                 value={form.size}
                 onChange={(e) => set('size', e.target.value)}
               >
@@ -247,7 +248,7 @@ export default function UnitsPage() {
               </select>
               <label className="text-[13px] font-semibold text-slate-700">구역</label>
               <input 
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
                 value={form.zone} 
                 onChange={(e) => set('zone', e.target.value)} 
               />
@@ -255,7 +256,7 @@ export default function UnitsPage() {
               <input
                 type="text"
                 inputMode="numeric"
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
                 value={form.monthlyPrice ? Number(form.monthlyPrice).toLocaleString() : ''}
                 onChange={(e) => set('monthlyPrice', e.target.value.replace(/[^0-9]/g, ''))}
               />
@@ -285,19 +286,19 @@ export default function UnitsPage() {
             <div className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-2.5 items-center mb-5">
               <label className="text-[13px] font-semibold text-slate-700">고객명 *</label>
               <input
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
                 value={contractForm.customerName}
                 onChange={(e) => setContract('customerName', e.target.value)}
               />
               <label className="text-[13px] font-semibold text-slate-700">연락처 *</label>
               <input
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
                 value={contractForm.customerPhone}
                 onChange={(e) => setContract('customerPhone', e.target.value)}
               />
               <label className="text-[13px] font-semibold text-slate-700">주소</label>
               <input
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
                 value={contractForm.customerAddress}
                 onChange={(e) => setContract('customerAddress', e.target.value)}
               />
@@ -305,7 +306,7 @@ export default function UnitsPage() {
               <div className="flex flex-col gap-1.5">
                 <input
                   type="date"
-                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
                   value={contractForm.startDate}
                   onChange={(e) => setContract('startDate', e.target.value)}
                 />
@@ -327,7 +328,7 @@ export default function UnitsPage() {
               <div className="flex flex-col gap-1.5">
                 <input
                   type="date"
-                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
                   value={contractForm.endDate}
                   onChange={(e) => setContract('endDate', e.target.value)}
                 />
@@ -349,14 +350,14 @@ export default function UnitsPage() {
               <input
                 type="text"
                 inputMode="numeric"
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
                 value={contractForm.totalPrice ? Number(contractForm.totalPrice).toLocaleString() : ''}
                 onChange={(e) => setContract('totalPrice', e.target.value.replace(/[^0-9]/g, ''))}
               />
               <label className="text-[13px] font-semibold text-slate-700">기타</label>
               <textarea
                 rows={3}
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px] resize-none"
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px] resize-none"
                 value={contractForm.memo}
                 onChange={(e) => setContract('memo', e.target.value)}
                 placeholder="기타 사항을 입력하세요"

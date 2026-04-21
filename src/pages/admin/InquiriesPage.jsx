@@ -96,7 +96,7 @@ export default function InquiriesPage() {
               <label className="text-[13px] font-semibold block mb-2 text-slate-700">관리자 메모</label>
               <textarea 
                 rows={3} 
-                className="w-full border-[1.5px] border-slate-200 rounded-lg p-3.5 outline-none resize-vertical text-[13px] mb-2 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50"
+                className="w-full border-[1.5px] border-slate-200 rounded-lg p-3.5 outline-none resize-vertical text-[13px] mb-2 focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50"
                 value={memoValue} 
                 onChange={(e) => setMemoValue(e.target.value)} 
               />
