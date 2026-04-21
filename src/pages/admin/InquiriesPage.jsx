@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import client from '../../api/client.js'
 import DataTable from '../../components/DataTable.jsx'
+import ConfirmModal from '../../components/ConfirmModal.jsx'
 
 const STATUS_LABELS = { PENDING: '접수', IN_PROGRESS: '처리 중', COMPLETED: '완료', CANCELLED: '취소' }
 const STATUS_CLASS = { PENDING: 'bg-yellow-100 text-yellow-700', IN_PROGRESS: 'bg-blue-100 text-blue-700', COMPLETED: 'bg-green-100 text-green-700', CANCELLED: 'bg-slate-100 text-slate-500' }
@@ -11,6 +12,7 @@ export default function InquiriesPage() {
   const [inquiries, setInquiries] = useState([])
   const [detailModal, setDetailModal] = useState(null)
   const [memoValue, setMemoValue] = useState('')
+  const [confirmModal, setConfirmModal] = useState(null)
 
   async function load() {
     const res = await client.get('/admin/inquiries')
@@ -30,6 +32,20 @@ export default function InquiriesPage() {
     const res = await client.get(`/admin/inquiries/${id}`)
     setDetailModal(res.data)
     load()
+  }
+
+  function deleteInquiry(id) {
+    setConfirmModal({
+      message: `문의 #${id}를 삭제할까요?`,
+      confirmLabel: '삭제',
+      confirmClass: 'bg-red-500 hover:bg-red-600',
+      onConfirm: async () => {
+        await client.delete(`/admin/inquiries/${id}`)
+        setConfirmModal(null)
+        setDetailModal(null)
+        load()
+      },
+    })
   }
 
   async function saveMemo() {
@@ -59,6 +75,16 @@ export default function InquiriesPage() {
       <DataTable columns={columns} rows={inquiries} actions={(row) => (
         <button className="px-2.5 py-1 rounded-md text-[12px] font-semibold mr-1 bg-slate-100 text-slate-600 hover:bg-slate-200" onClick={() => openDetail(row)}>상세</button>
       )} />
+
+      {confirmModal && (
+        <ConfirmModal
+          message={confirmModal.message}
+          confirmLabel={confirmModal.confirmLabel}
+          confirmClass={confirmModal.confirmClass}
+          onConfirm={confirmModal.onConfirm}
+          onCancel={() => setConfirmModal(null)}
+        />
+      )}
 
       {detailModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[3px]" onClick={() => setDetailModal(null)}>
@@ -102,7 +128,8 @@ export default function InquiriesPage() {
               />
               <button className="btn-sm btn-edit" onClick={saveMemo}>메모 저장</button>
             </div>
-            <div className="flex justify-end gap-2 mt-2">
+            <div className="flex justify-between items-center mt-2">
+              <button className="btn-sm btn-delete" onClick={() => deleteInquiry(detailModal.id)}>삭제</button>
               <button className="btn-ghost" onClick={() => setDetailModal(null)}>닫기</button>
             </div>
           </div>
