@@ -27,7 +27,7 @@ export default function ContractsPage() {
 
   async function load(y, m, status) {
     const yearMonth = toYearMonth(y, m)
-    const params = new URLSearchParams({ yearMonth, size: 500, sort: 'startDate,desc' })
+    const params = new URLSearchParams({ yearMonth, size: 500, sort: 'createdAt,desc' })
     if (status) params.set('status', status)
     const res = await client.get(`/admin/contracts?${params}`)
     const list = res.data?.content ?? res.data ?? []
@@ -70,6 +70,13 @@ export default function ContractsPage() {
         ? <span className="inline-block px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-500">만료 임박</span>
         : <span className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-bold ${STATUS_CLASS[v] ?? 'bg-slate-100 text-slate-500'}`}>{STATUS_LABELS[v] ?? v}</span>
     )},
+    { key: 'startDate', label: '사용 기간', width: '90px', render: (_, row) => {
+      if (!row.startDate || !row.endDate) return '-'
+      const start = new Date(row.startDate)
+      const end = new Date(row.endDate)
+      const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1
+      return `${months}개월`
+    }},
     { key: 'memo', label: '기타', width: '180px', render: (v) => v
       ? <span title={v} className="block max-w-[180px] truncate text-slate-500">{v}</span>
       : '' },
