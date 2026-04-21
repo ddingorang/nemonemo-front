@@ -4,7 +4,7 @@ import client from '../../api/client.js'
 import DataTable from '../../components/DataTable.jsx'
 import ConfirmModal from '../../components/ConfirmModal.jsx'
 
-const STATUS_LABELS = { ACTIVE: '계약 중', EXPIRED: '만료', TERMINATED: '해지', AVAILABLE: '비어있음', OCCUPIED: '사용 중', RESERVED: '예약됨', MAINTENANCE: '점검 중' }
+const STATUS_LABELS = { ACTIVE: '사용 중', EXPIRED: '만료', TERMINATED: '해지', AVAILABLE: '비어있음', OCCUPIED: '사용 중', RESERVED: '예약됨', MAINTENANCE: '점검 중' }
 const STATUS_CLASS = { ACTIVE: 'bg-green-100 text-green-700', EXPIRED: 'bg-slate-100 text-slate-500', TERMINATED: 'bg-red-100 text-red-500', AVAILABLE: 'bg-blue-100 text-blue-600', OCCUPIED: 'bg-green-100 text-green-700', RESERVED: 'bg-yellow-100 text-yellow-700', MAINTENANCE: 'bg-orange-100 text-orange-600' }
 const SIZES = ['S', 'M', 'L', 'XL']
 const STATUSES = ['AVAILABLE', 'OCCUPIED', 'RESERVED', 'MAINTENANCE']
@@ -22,7 +22,7 @@ function unitSort(a, b) {
 }
 
 const EMPTY_FORM = { warehouseId: 1, unitNumber: '', size: 'S', zone: '', monthlyPrice: '' }
-const EMPTY_CONTRACT_FORM = { contractId: '', unitId: '', customerName: '', customerPhone: '', customerAddress: '', startDate: '', endDate: '', totalPrice: '' }
+const EMPTY_CONTRACT_FORM = { contractId: '', unitId: '', customerName: '', customerPhone: '', customerAddress: '', startDate: '', endDate: '', totalPrice: '', memo: '' }
 
 export default function UnitsPage() {
   const [units, setUnits] = useState([])
@@ -83,6 +83,15 @@ export default function UnitsPage() {
     setContractForm((p) => ({ ...p, endDate: d.toISOString().slice(0, 10) }))
   }
 
+  function extendEndDate(months) {
+    if (!contractForm.endDate) return
+    const d = new Date(contractForm.endDate)
+    d.setMonth(d.getMonth() + months)
+    const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()
+    if (daysInMonth === 31) d.setDate(d.getDate() - 1)
+    setContractForm((p) => ({ ...p, endDate: d.toISOString().slice(0, 10) }))
+  }
+
   function openCreate() { setForm(EMPTY_FORM); setModal('create') }
 
   async function openContractEdit(row) {
@@ -97,6 +106,7 @@ export default function UnitsPage() {
       startDate: c.startDate ?? '',
       endDate: c.endDate ?? '',
       totalPrice: c.totalPrice ?? '',
+      memo: c.memo ?? '',
     })
     setContractModal('edit')
   }
@@ -110,6 +120,7 @@ export default function UnitsPage() {
       startDate: contractForm.startDate,
       endDate: contractForm.endDate,
       totalPrice: Number(contractForm.totalPrice),
+      memo: contractForm.memo || null,
     })
     setContractModal(null)
     load()
@@ -157,11 +168,14 @@ export default function UnitsPage() {
         ? <span className="inline-block px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-500">만료 임박</span>
         : <span className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-bold ${STATUS_CLASS[v] ?? 'bg-slate-100 text-slate-500'}`}>{STATUS_LABELS[v] ?? v}</span>
     )},
-    { key: 'customerAddress', label: '주소', render: (v) => v ?? '-' },
+    { key: 'customerAddress', label: '주소', width: '180px', render: (v) => v ?? '-' },
+    { key: 'memo', label: '기타', width: '220px', render: (v) => v
+      ? <span title={v} className="block max-w-[220px] truncate">{v}</span>
+      : '' },
   ]
 
   return (
-    <div className="p-12 px-14 max-w-[1400px]">
+    <div className="p-12 px-14 max-w-[1700px]">
       <div className="flex justify-between items-center mb-7">
         <h1 className="text-[22px] font-extrabold tracking-tight text-slate-900">유닛 관리</h1>
         <button className="btn-primary" onClick={openCreate}>+ 유닛 추가</button>
@@ -310,12 +324,27 @@ export default function UnitsPage() {
                 </div>
               </div>
               <label className="text-[13px] font-semibold text-slate-700">종료일 *</label>
-              <input
-                type="date"
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
-                value={contractForm.endDate}
-                onChange={(e) => setContract('endDate', e.target.value)}
-              />
+              <div className="flex flex-col gap-1.5">
+                <input
+                  type="date"
+                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
+                  value={contractForm.endDate}
+                  onChange={(e) => setContract('endDate', e.target.value)}
+                />
+                <div className="flex gap-1.5">
+                  {[1, 3, 6].map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      className="flex-1 py-1 rounded-md border-[1.5px] border-slate-200 bg-slate-50 text-[12px] font-semibold text-slate-600 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                      disabled={!contractForm.endDate}
+                      onClick={() => extendEndDate(m)}
+                    >
+                      +{m}개월
+                    </button>
+                  ))}
+                </div>
+              </div>
               <label className="text-[13px] font-semibold text-slate-700">계약 금액 *</label>
               <input
                 type="text"
@@ -323,6 +352,14 @@ export default function UnitsPage() {
                 className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px]"
                 value={contractForm.totalPrice ? Number(contractForm.totalPrice).toLocaleString() : ''}
                 onChange={(e) => setContract('totalPrice', e.target.value.replace(/[^0-9]/g, ''))}
+              />
+              <label className="text-[13px] font-semibold text-slate-700">기타</label>
+              <textarea
+                rows={3}
+                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 bg-slate-50 text-[13px] resize-none"
+                value={contractForm.memo}
+                onChange={(e) => setContract('memo', e.target.value)}
+                placeholder="기타 사항을 입력하세요"
               />
             </div>
             <div className="flex justify-end gap-2 mt-2">
