@@ -219,7 +219,7 @@ export default function UnitsPage() {
         }
         selectedId={selectedUnit?.id}
         onSelect={setSelectedUnit}
-        rowClass={(row) => (row.status === 'DISABLED' || row.status === 'MAINTENANCE') ? 'bg-slate-100 text-slate-400' : ''}
+        rowClass={(row) => row.status === 'RESERVED' ? 'bg-yellow-100 hover:bg-yellow-200' : (row.status === 'DISABLED' || row.status === 'MAINTENANCE') ? 'bg-slate-200 text-slate-400 hover:bg-slate-300' : ''}
         headerExtra={
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-1">
