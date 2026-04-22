@@ -375,7 +375,7 @@ export default function DashboardPage() {
     <div className="p-12 px-14 max-w-[1440px]">
       <h1 className="text-[26px] font-extrabold tracking-tight text-slate-900 mb-8">대시보드</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-12">
         <div className="bg-white rounded-2xl p-6 px-7 border-[1.5px] border-slate-200 shadow-sm transition-shadow hover:shadow-md">
           <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">전체 유닛</div>
           <div className="text-[42px] font-extrabold tracking-tighter leading-none text-slate-900">{s.total}</div>
@@ -387,6 +387,10 @@ export default function DashboardPage() {
         <div className="bg-orange-50 rounded-2xl p-6 px-7 border-[1.5px] border-orange-200 shadow-sm transition-shadow hover:shadow-md">
           <div className="text-[11px] font-bold text-orange-600/60 uppercase tracking-widest mb-3">사용 중</div>
           <div className="text-[42px] font-extrabold tracking-tighter leading-none text-orange-600">{s.occupied}</div>
+        </div>
+        <div className="bg-slate-50 rounded-2xl p-6 px-7 border-[1.5px] border-slate-200 shadow-sm transition-shadow hover:shadow-md">
+          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">비활성화</div>
+          <div className="text-[42px] font-extrabold tracking-tighter leading-none text-slate-400">{s.maintenance}</div>
         </div>
         <div className="bg-amber-50 rounded-2xl p-6 px-7 border-[1.5px] border-amber-200 shadow-sm transition-shadow hover:shadow-md">
           <div className="text-[11px] font-bold text-amber-600/60 uppercase tracking-widest mb-3">만료 임박 (7일)</div>

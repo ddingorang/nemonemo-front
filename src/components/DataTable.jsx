@@ -95,11 +95,11 @@ export default function DataTable({ columns, rows, onEdit, onDelete, actions, se
                   </td>
                 )}
                 {columns.map((col) => (
-                  <td key={col.key} className={`p-2.5 px-4 border-b border-slate-100 align-middle whitespace-nowrap text-slate-700 font-medium text-center ${col.cellClass ? col.cellClass(row[col.key], row) : ''}`}>{col.render ? col.render(row[col.key], row) : (row[col.key] ?? '-')}</td>
+                  <td key={col.key} className={`p-2.5 px-4 border-b border-slate-100 align-middle text-slate-700 font-medium text-center ${col.wrap ? '' : 'whitespace-nowrap'} ${col.cellClass ? col.cellClass(row[col.key], row) : ''}`}>{col.render ? col.render(row[col.key], row) : (row[col.key] ?? '-')}</td>
                 ))}
                 {(onEdit || onDelete || actions) && (
-                  <td className="p-2.5 px-4 border-b border-slate-100 align-middle whitespace-nowrap">
-                    <div className="flex gap-2">
+                  <td className="p-2.5 px-4 border-b border-slate-100 align-middle whitespace-nowrap text-center">
+                    <div className="flex gap-2 justify-center">
                       {actions && actions(row)}
                       {onEdit && <button className="btn-sm btn-edit" onClick={() => onEdit(row)}>수정</button>}
                       {onDelete && <button className="btn-sm btn-delete" onClick={() => onDelete(row)}>삭제</button>}

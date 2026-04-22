@@ -6,6 +6,7 @@ import ConfirmModal from '../../components/ConfirmModal.jsx'
 
 const STATUS_LABELS = { PENDING: '접수', IN_PROGRESS: '처리 중', COMPLETED: '완료', CANCELLED: '취소' }
 const STATUS_CLASS = { PENDING: 'bg-yellow-100 text-yellow-700', IN_PROGRESS: 'bg-blue-100 text-blue-700', COMPLETED: 'bg-green-100 text-green-700', CANCELLED: 'bg-slate-100 text-slate-500' }
+const SIZE_COLOR = { XS: '#818cf8', S: '#4ade80', M: '#38bdf8', L: '#fb923c', XL: '#f43f5e' }
 const STATUSES = ['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']
 
 export default function InquiriesPage() {
@@ -55,15 +56,15 @@ export default function InquiriesPage() {
   }
 
   const columns = [
-    { key: 'id', label: 'ID', sortable: true },
-    { key: 'customerName', label: '고객명', sortable: true },
-    { key: 'customerPhone', label: '연락처' },
-    { key: 'desiredSize', label: '희망 사이즈', sortable: true },
-    { key: 'unitNumber', label: '지정 유닛', render: (v) => v ?? '-' },
-    { key: 'desiredStartDate', label: '희망 시작일', sortable: true },
-    { key: 'desiredDurationMonths', label: '기간(월)' },
-    { key: 'status', label: '상태', sortable: true, render: (v) => <span className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-bold ${STATUS_CLASS[v]}`}>{STATUS_LABELS[v]}</span> },
-    { key: 'createdAt', label: '접수일', sortable: true, render: (v) => v?.slice(0, 10) },
+    { key: 'id', label: 'ID', sortable: true, width: '56px' },
+    { key: 'customerName', label: '고객명', sortable: true, width: '88px', render: (v) => <span className="font-bold">{v}</span> },
+    { key: 'customerPhone', label: '연락처', width: '116px' },
+    { key: 'desiredSize', label: '사이즈', sortable: true, width: '72px', render: (v) => <span className="inline-block w-9 py-1 rounded-full text-[11px] font-bold text-white text-center" style={{ backgroundColor: SIZE_COLOR[v] ?? '#e2e8f0' }}>{v}</span> },
+    { key: 'desiredStartDate', label: '희망 시작일', sortable: true, width: '100px' },
+    { key: 'desiredDurationMonths', label: '기간(월)', width: '68px' },
+    { key: 'message', label: '문의 내용', wrap: true, render: (v) => <span className="block text-left text-slate-500 truncate max-w-[320px]">{v ?? '-'}</span> },
+    { key: 'status', label: '상태', sortable: true, width: '88px', render: (v) => <span className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-bold ${STATUS_CLASS[v]}`}>{STATUS_LABELS[v]}</span> },
+    { key: 'createdAt', label: '접수일', sortable: true, width: '96px', render: (v) => v?.slice(0, 10) },
   ]
 
   return (
