@@ -383,7 +383,10 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-12">
         <div className="bg-white rounded-2xl p-6 px-7 border-[1.5px] border-slate-200 shadow-sm transition-shadow hover:shadow-md">
           <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">전체 유닛</div>
-          <div className="text-[42px] font-extrabold tracking-tighter leading-none text-slate-900">{s.total}</div>
+          <div className="flex items-end gap-2 leading-none">
+            <span className="text-[42px] font-extrabold tracking-tighter leading-none text-slate-900">{s.total - s.disabled}</span>
+            {s.disabled > 0 && <span className="text-[16px] font-semibold text-slate-400 mb-1">(+{s.disabled})</span>}
+          </div>
         </div>
         <div className="bg-green-50 rounded-2xl p-6 px-7 border-[1.5px] border-green-200 shadow-sm transition-shadow hover:shadow-md">
           <div className="text-[11px] font-bold text-green-600/60 uppercase tracking-widest mb-3">이용 가능</div>
@@ -393,9 +396,9 @@ export default function DashboardPage() {
           <div className="text-[11px] font-bold text-orange-600/60 uppercase tracking-widest mb-3">사용 중</div>
           <div className="text-[42px] font-extrabold tracking-tighter leading-none text-orange-600">{s.occupied}</div>
         </div>
-        <div className="bg-slate-50 rounded-2xl p-6 px-7 border-[1.5px] border-slate-200 shadow-sm transition-shadow hover:shadow-md">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">비활성화</div>
-          <div className="text-[42px] font-extrabold tracking-tighter leading-none text-slate-400">{s.disabled}</div>
+        <div className="bg-yellow-50 rounded-2xl p-6 px-7 border-[1.5px] border-yellow-200 shadow-sm transition-shadow hover:shadow-md">
+          <div className="text-[11px] font-bold text-yellow-600/60 uppercase tracking-widest mb-3">예약됨</div>
+          <div className="text-[42px] font-extrabold tracking-tighter leading-none text-yellow-600">{s.reserved}</div>
         </div>
         <div className="bg-amber-50 rounded-2xl p-6 px-7 border-[1.5px] border-amber-200 shadow-sm transition-shadow hover:shadow-md">
           <div className="text-[11px] font-bold text-amber-600/60 uppercase tracking-widest mb-3">만료 임박 (7일)</div>
