@@ -198,12 +198,29 @@ export default function HomePage() {
             <span className="w-8 h-8 rounded-md flex items-center justify-center text-white font-black text-sm" style={{ backgroundColor: '#f97316' }}>N</span>
             <span className="text-white font-extrabold text-[17px] tracking-tight">네모네모 스토리지</span>
           </div>
-          <button
-            className="text-white/80 hover:text-white text-[13px] font-semibold border border-white/20 hover:border-white/50 px-4 py-1.5 rounded-md transition-all duration-200"
-            onClick={() => navigate('/admin/login')}
-          >
-            관리자 로그인
-          </button>
+          {localStorage.getItem('token') ? (
+            <div className="flex items-center gap-2">
+              <button
+                className="text-white/80 hover:text-white text-[13px] font-semibold border border-white/20 hover:border-white/50 px-4 py-1.5 rounded-md transition-all duration-200"
+                onClick={() => navigate('/admin/dashboard')}
+              >
+                관리자 페이지
+              </button>
+              <button
+                className="text-white/60 hover:text-white text-[13px] font-semibold px-3 py-1.5 rounded-md transition-all duration-200 hover:bg-white/10"
+                onClick={() => { localStorage.removeItem('token'); window.location.reload() }}
+              >
+                로그아웃
+              </button>
+            </div>
+          ) : (
+            <button
+              className="text-white/80 hover:text-white text-[13px] font-semibold border border-white/20 hover:border-white/50 px-4 py-1.5 rounded-md transition-all duration-200"
+              onClick={() => navigate('/admin/login')}
+            >
+              관리자 로그인
+            </button>
+          )}
         </div>
       </header>
 

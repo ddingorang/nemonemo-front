@@ -15,7 +15,7 @@ function normalizeStatus(status) {
 function statusOverlay(unit) {
   const s = normalizeStatus(unit.status)
   if (s === 'AVAILABLE') return null
-  if (s === 'OCCUPIED' && unit.expiringSoon) return 'rgba(0,0,0,0.22)'
+  if (s === 'OCCUPIED' && unit.expiringSoon) return 'rgba(251,191,36,0.35)'
   if (s === 'OCCUPIED') return 'rgba(0,0,0,0.35)'
   if (s === 'RESERVED') return 'rgba(255,255,255,0.32)'
   return null
@@ -80,18 +80,18 @@ export default function WarehouseGrid({ units, adminMode = false }) {
         key={unit.id}
         className={`${halfHeight ? 'h-10' : 'h-14'} rounded-[4px] flex items-center justify-center cursor-default transition-all duration-150 hover:scale-110 hover:z-10 relative overflow-hidden`}
         style={{
-          backgroundColor: normalizeStatus(unit.status) === 'DISABLED' ? '#94a3b8' : SIZE_COLOR[unit.size],
+          backgroundColor: normalizeStatus(unit.status) === 'DISABLED' ? '#475569' : SIZE_COLOR[unit.size],
           boxShadow: hovered?.id === unit.id
             ? '0 0 0 2px #f97316'
             : expiring
-            ? '0 0 0 2px #fbbf24'
+            ? '0 0 0 2.5px #f59e0b, 0 0 10px 3px rgba(245,158,11,0.55)'
             : undefined,
         }}
         onMouseEnter={() => setHovered(unit)}
         onMouseLeave={() => setHovered(null)}
         onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
       >
-        {overlay && <div className="absolute inset-0" style={{ backgroundColor: overlay }} />}
+        {overlay && <div className={`absolute inset-0 ${expiring ? 'animate-pulse' : ''}`} style={{ backgroundColor: overlay }} />}
         <div className="relative z-10 flex flex-col items-center leading-none select-none gap-0.5">
           <span className="text-[11px] font-extrabold text-white/50">{unit.size}</span>
           <span className="text-[13px] font-black text-white/70">{unit.unitNumber.slice(-2)}</span>

@@ -373,7 +373,12 @@ export default function DashboardPage() {
 
   return (
     <div className="p-12 px-14 max-w-[1440px]">
-      <h1 className="text-[26px] font-extrabold tracking-tight text-slate-900 mb-8">대시보드</h1>
+      <div className="flex items-baseline justify-between mb-8">
+        <h1 className="text-[26px] font-extrabold tracking-tight text-slate-900">대시보드</h1>
+        <span className="text-[21px] font-extrabold tracking-tight text-slate-900">
+          {(() => { const d = new Date(); return `${d.getFullYear()}년 ${String(d.getMonth()+1).padStart(2,'0')}월 ${String(d.getDate()).padStart(2,'0')}일` })()}
+        </span>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-12">
         <div className="bg-white rounded-2xl p-6 px-7 border-[1.5px] border-slate-200 shadow-sm transition-shadow hover:shadow-md">
@@ -390,7 +395,7 @@ export default function DashboardPage() {
         </div>
         <div className="bg-slate-50 rounded-2xl p-6 px-7 border-[1.5px] border-slate-200 shadow-sm transition-shadow hover:shadow-md">
           <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">비활성화</div>
-          <div className="text-[42px] font-extrabold tracking-tighter leading-none text-slate-400">{s.maintenance}</div>
+          <div className="text-[42px] font-extrabold tracking-tighter leading-none text-slate-400">{s.disabled}</div>
         </div>
         <div className="bg-amber-50 rounded-2xl p-6 px-7 border-[1.5px] border-amber-200 shadow-sm transition-shadow hover:shadow-md">
           <div className="text-[11px] font-bold text-amber-600/60 uppercase tracking-widest mb-3">만료 임박 (7일)</div>
