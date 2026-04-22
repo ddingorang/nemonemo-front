@@ -80,7 +80,7 @@ export default function WarehouseGrid({ units, adminMode = false }) {
         key={unit.id}
         className={`${halfHeight ? 'h-10' : 'h-14'} rounded-[4px] flex items-center justify-center cursor-default transition-all duration-150 hover:scale-110 hover:z-10 relative overflow-hidden`}
         style={{
-          backgroundColor: normalizeStatus(unit.status) === 'DISABLED' ? '#475569' : SIZE_COLOR[unit.size],
+          backgroundColor: normalizeStatus(unit.status) === 'DISABLED' ? '#475569' : normalizeStatus(unit.status) === 'RESERVED' ? '#f59e0b' : SIZE_COLOR[unit.size],
           boxShadow: hovered?.id === unit.id
             ? '0 0 0 2px #f97316'
             : expiring

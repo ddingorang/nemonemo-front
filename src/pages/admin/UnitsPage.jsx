@@ -187,6 +187,7 @@ export default function UnitsPage() {
       render: (v, row) => v
         ? <span className={row.expiringSoon ? 'text-orange-600 font-bold' : ''}>{v}</span>
         : '-' },
+    { key: 'totalPrice', label: '계약 금액', sortable: true, width: '120px', render: (v) => v != null ? <span className="font-semibold">{Number(v).toLocaleString()}원</span> : '-' },
     { key: 'status', label: '상태', sortable: true, width: '110px', render: (v, row) => (
       row.expiringSoon && row.status === 'ACTIVE'
         ? <span className="inline-block px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-500">만료 임박</span>
