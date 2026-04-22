@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { to: '/admin/units', label: '유닛 관리' },
   { to: '/admin/contracts', label: '계약 조회' },
   { to: '/admin/inquiries', label: '문의 관리' },
+  { to: '/admin/memos', label: '메모' },
 ]
 
 export default function AdminLayout() {

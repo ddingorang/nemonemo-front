@@ -9,6 +9,7 @@ import DashboardPage from './pages/admin/DashboardPage.jsx'
 import UnitsPage from './pages/admin/UnitsPage.jsx'
 import InquiriesPage from './pages/admin/InquiriesPage.jsx'
 import ContractsPage from './pages/admin/ContractsPage.jsx'
+import MemosPage from './pages/admin/MemosPage.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import ErrorModal from './components/ErrorModal.jsx'
 
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="units" element={<UnitsPage />} />
           <Route path="inquiries" element={<InquiriesPage />} />
           <Route path="contracts" element={<ContractsPage />} />
+          <Route path="memos" element={<MemosPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

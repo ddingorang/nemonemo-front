@@ -56,7 +56,9 @@ export default function UnitsPage() {
         size: unit.size,
         zone: unit.zone,
         monthlyPrice: unit.monthlyPrice,
-        status: c ? c.status : (unit.status ?? 'AVAILABLE'),
+        status: c
+          ? (['RESERVED', 'DISABLED', 'MAINTENANCE'].includes(unit.status) ? unit.status : c.status)
+          : (unit.status ?? 'AVAILABLE'),
         customerName: c?.customerName ?? null,
         customerPhone: c?.customerPhone ?? null,
         customerAddress: c?.customerAddress ?? null,
