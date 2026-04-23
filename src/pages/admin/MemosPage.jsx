@@ -14,27 +14,119 @@ function PinIcon({ filled }) {
   )
 }
 
-function MemoCard({ memo, onEdit, onDelete, onTogglePin }) {
+function MemoCard({ memo, onSave, onDelete, onTogglePin }) {
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState('')
+
+  function startEdit() {
+    setDraft(memo.content ?? '')
+    setEditing(true)
+  }
+
+  function cancelEdit() {
+    setEditing(false)
+  }
+
+  async function save() {
+    await onSave(memo, draft)
+    setEditing(false)
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === 'Escape') cancelEdit()
+  }
+
   return (
-    <div className={`group relative bg-white rounded-2xl border-[1.5px] flex flex-col gap-3 p-5 transition-all hover:shadow-md hover:border-slate-300 ${memo.pinned ? 'border-orange-300 shadow-sm' : 'border-slate-200'}`}>
-      {memo.pinned && (
-        <span className="absolute top-3 right-3 text-orange-400">
-          <PinIcon filled />
+    <div
+      className={`group relative flex flex-col overflow-hidden rounded-[3px] transition-all duration-200 ${editing ? '' : 'hover:-translate-y-1'} ${memo.pinned ? 'bg-amber-50' : 'bg-[#fafaf7]'}`}
+      style={{
+        minHeight: '320px',
+        boxShadow: editing
+          ? '0 0 0 2px #f97316, 3px 5px 14px rgba(0,0,0,0.15)'
+          : memo.pinned
+          ? '3px 5px 14px rgba(251,146,60,0.22), 1px 1px 0 rgba(0,0,0,0.06)'
+          : '3px 5px 14px rgba(0,0,0,0.11), 1px 1px 0 rgba(0,0,0,0.05)',
+      }}
+    >
+      {/* 상단 컬러 스트립 */}
+      <div className={`h-7 shrink-0 flex items-center justify-between px-3 ${editing ? 'bg-orange-500' : memo.pinned ? 'bg-orange-400' : 'bg-slate-400'}`}>
+        <span className="text-[10px] font-bold text-white/80 uppercase tracking-widest">
+          {editing ? '수정 중' : memo.pinned ? '고정' : 'Memo'}
         </span>
-      )}
-      <p className="text-[12.5px] text-slate-600 leading-relaxed line-clamp-5 flex-1 whitespace-pre-wrap pr-4">{memo.content || ''}</p>
-      <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-        <span className="text-[11px] text-slate-400">{memo.updatedAt?.slice(0, 10) ?? ''}</span>
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            className="px-2.5 py-1 rounded-md text-[12px] font-semibold bg-slate-100 text-slate-500 hover:bg-orange-50 hover:text-orange-500 transition-all"
-            onClick={() => onTogglePin(memo)}
+        {!editing && memo.pinned && (
+          <span className="text-white/90"><PinIcon filled /></span>
+        )}
+      </div>
+
+      {/* 줄지 영역 */}
+      <div
+        className="flex-1 px-4 pt-2 pb-2"
+        style={{
+          backgroundImage: 'repeating-linear-gradient(to bottom, transparent 0px, transparent 23px, #e2e8f0 23px, #e2e8f0 24px)',
+        }}
+      >
+        {editing ? (
+          <textarea
+            autoFocus
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="w-full h-full bg-transparent outline-none resize-none text-[13px] text-slate-700"
+            style={{ lineHeight: '24px', minHeight: '240px' }}
+            placeholder="메모 내용을 입력하세요"
+          />
+        ) : (
+          <p
+            className={`text-[13px] whitespace-pre-wrap overflow-hidden ${memo.pinned ? 'text-slate-700' : 'text-slate-600'}`}
+            style={{ lineHeight: '24px', maxHeight: '240px' }}
           >
-            <PinIcon filled={memo.pinned} />
-          </button>
-          <button className="px-2.5 py-1 rounded-md text-[12px] font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all" onClick={() => onEdit(memo)}>수정</button>
-          <button className="px-2.5 py-1 rounded-md text-[12px] font-semibold bg-red-50 text-red-400 hover:bg-red-100 transition-all" onClick={() => onDelete(memo)}>삭제</button>
-        </div>
+            {memo.content || <span className="text-slate-300 italic">내용 없음</span>}
+          </p>
+        )}
+      </div>
+
+      {/* 하단 푸터 */}
+      <div className={`shrink-0 border-t px-3 py-2 flex items-center justify-between ${memo.pinned ? 'border-orange-200 bg-amber-100/40' : 'border-slate-200 bg-slate-100/50'}`}>
+        <span className="text-[11.5px] text-slate-500 tabular-nums">
+          {memo.updatedAt ? memo.updatedAt.slice(0, 16).replace('T', ' ') : ''}
+        </span>
+        {editing ? (
+          <div className="flex gap-1">
+            <button
+              className="px-2 py-1 rounded text-[11px] font-semibold text-slate-500 hover:bg-slate-200 transition-colors"
+              onClick={cancelEdit}
+            >
+              취소
+            </button>
+            <button
+              className="px-2 py-1 rounded text-[11px] font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors"
+              onClick={save}
+            >
+              저장
+            </button>
+          </div>
+        ) : (
+          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              className="p-1.5 rounded text-slate-400 hover:bg-orange-100 hover:text-orange-500 transition-colors"
+              onClick={() => onTogglePin(memo)}
+            >
+              <PinIcon filled={memo.pinned} />
+            </button>
+            <button
+              className="px-2 py-1 rounded text-[11px] font-semibold text-slate-500 hover:bg-slate-200 transition-colors"
+              onClick={startEdit}
+            >
+              수정
+            </button>
+            <button
+              className="px-2 py-1 rounded text-[11px] font-semibold text-red-400 hover:bg-red-100 transition-colors"
+              onClick={() => onDelete(memo)}
+            >
+              삭제
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -44,7 +136,6 @@ export default function MemosPage() {
   const [memos, setMemos] = useState([])
   const [modal, setModal] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
-  const [editId, setEditId] = useState(null)
   const [confirmModal, setConfirmModal] = useState(null)
 
   async function load() {
@@ -59,24 +150,17 @@ export default function MemosPage() {
 
   function openCreate() {
     setForm(EMPTY_FORM)
-    setEditId(null)
     setModal('form')
   }
 
-  function openEdit(memo) {
-    setForm({ content: memo.content ?? '', pinned: memo.pinned ?? false })
-    setEditId(memo.id)
-    setModal('form')
-  }
-
-  async function save() {
-    const body = { content: form.content, pinned: form.pinned }
-    if (editId) {
-      await client.put(`/admin/memos/${editId}`, body)
-    } else {
-      await client.post('/admin/memos', body)
-    }
+  async function create() {
+    await client.post('/admin/memos', { content: form.content, pinned: form.pinned })
     setModal(null)
+    load()
+  }
+
+  async function saveMemo(memo, newContent) {
+    await client.put(`/admin/memos/${memo.id}`, { content: newContent, pinned: memo.pinned })
     load()
   }
 
@@ -123,9 +207,9 @@ export default function MemosPage() {
           <p className="text-[12px] font-bold text-orange-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
             <PinIcon filled /> 고정됨
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {pinned.map((m) => (
-              <MemoCard key={m.id} memo={m} onEdit={openEdit} onDelete={requestDelete} onTogglePin={togglePin} />
+              <MemoCard key={m.id} memo={m} onSave={saveMemo} onDelete={requestDelete} onTogglePin={togglePin} />
             ))}
           </div>
         </section>
@@ -136,9 +220,9 @@ export default function MemosPage() {
           {pinned.length > 0 && (
             <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-3">전체</p>
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {unpinned.map((m) => (
-              <MemoCard key={m.id} memo={m} onEdit={openEdit} onDelete={requestDelete} onTogglePin={togglePin} />
+              <MemoCard key={m.id} memo={m} onSave={saveMemo} onDelete={requestDelete} onTogglePin={togglePin} />
             ))}
           </div>
         </section>
@@ -161,7 +245,7 @@ export default function MemosPage() {
             <div className="p-8 overflow-y-auto">
               <h2 className="text-[18px] font-extrabold mb-6 tracking-tight flex items-center gap-2.5">
                 <span className="w-1 h-5 bg-orange-500 rounded-full shrink-0" />
-                {editId ? '메모 수정' : '새 메모'}
+                새 메모
               </h2>
               <div className="flex flex-col gap-4">
                 <textarea
@@ -184,7 +268,7 @@ export default function MemosPage() {
               </div>
               <div className="border-t border-slate-100 pt-5 mt-5 flex justify-end gap-2">
                 <button className="btn-ghost" onClick={() => setModal(null)}>취소</button>
-                <button className="btn-primary" onClick={save}>저장</button>
+                <button className="btn-primary" onClick={create}>저장</button>
               </div>
             </div>
           </div>
