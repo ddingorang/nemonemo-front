@@ -5,8 +5,8 @@ import DataTable from '../../components/DataTable.jsx'
 import ConfirmModal from '../../components/ConfirmModal.jsx'
 import WarehouseGrid from '../../components/WarehouseGrid.jsx'
 
-const STATUS_LABELS = { ACTIVE: '사용 중', EXPIRED: '만료', TERMINATED: '해지', AVAILABLE: '비어있음', OCCUPIED: '사용 중', RESERVED: '예약됨', DISABLED: '비활성화', MAINTENANCE: '비활성화' }
-const STATUS_CLASS = { ACTIVE: 'bg-green-100 text-green-700', EXPIRED: 'bg-slate-100 text-slate-500', TERMINATED: 'bg-red-100 text-red-500', AVAILABLE: 'bg-blue-100 text-blue-600', OCCUPIED: 'bg-green-100 text-green-700', RESERVED: 'bg-yellow-100 text-yellow-700', DISABLED: 'bg-slate-100 text-slate-500', MAINTENANCE: 'bg-slate-100 text-slate-500' }
+const STATUS_LABELS = { ACTIVE: '사용 중', EXPIRED: '만료', TERMINATED: '해지', AVAILABLE: '비어있음', OCCUPIED: '사용 중', RESERVED: '예약됨', DISABLED: '비활성화' }
+const STATUS_CLASS = { ACTIVE: 'bg-green-100 text-green-700', EXPIRED: 'bg-slate-100 text-slate-500', TERMINATED: 'bg-red-100 text-red-500', AVAILABLE: 'bg-blue-100 text-blue-600', OCCUPIED: 'bg-green-100 text-green-700', RESERVED: 'bg-yellow-100 text-yellow-700', DISABLED: 'bg-slate-100 text-slate-500' }
 const SIZES = ['S', 'M', 'L', 'XL']
 const STATUSES = ['AVAILABLE', 'OCCUPIED', 'RESERVED', 'DISABLED']
 
@@ -57,7 +57,7 @@ export default function UnitsPage() {
         zone: unit.zone,
         monthlyPrice: unit.monthlyPrice,
         status: c
-          ? (['RESERVED', 'DISABLED', 'MAINTENANCE'].includes(unit.status) ? unit.status : c.status)
+          ? (['RESERVED', 'DISABLED'].includes(unit.status) ? unit.status : c.status)
           : (unit.status ?? 'AVAILABLE'),
         customerName: c?.customerName ?? null,
         customerPhone: c?.customerPhone ?? null,
@@ -217,12 +217,14 @@ export default function UnitsPage() {
         key={sizeFilter}
         columns={columns}
         rows={sizeFilter
-          ? units.filter((u) => sizeFromUnitNumber(u.unitNumber) === sizeFilter)
+          ? units
+              .filter((u) => sizeFromUnitNumber(u.unitNumber) === sizeFilter)
+              .sort((a, b) => a.unitNumber.localeCompare(b.unitNumber, undefined, { numeric: true }))
           : [...units].sort(unitSort)
         }
         selectedId={selectedUnit?.id}
         onSelect={setSelectedUnit}
-        rowClass={(row) => row.status === 'RESERVED' ? 'bg-yellow-100 hover:bg-yellow-200' : (row.status === 'DISABLED' || row.status === 'MAINTENANCE') ? 'bg-slate-200 text-slate-400 hover:bg-slate-300' : ''}
+        rowClass={(row) => row.status === 'RESERVED' ? 'bg-yellow-100 hover:bg-yellow-200' : row.status === 'DISABLED' ? 'bg-slate-200 text-slate-400 hover:bg-slate-300' : ''}
         headerExtra={
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-1">
@@ -249,7 +251,7 @@ export default function UnitsPage() {
                 {selectedUnit.status === 'ACTIVE' && (
                   <>
                     <button className="btn-sm btn-edit" onClick={() => openContractEdit(selectedUnit)}>계약 수정</button>
-                    <button className="btn-sm btn-delete" onClick={() => terminateContract(selectedUnit)}>해지</button>
+                    <button className="btn-sm btn-delete" onClick={() => terminateContract(selectedUnit)}>만료/해지</button>
                   </>
                 )}
                 <button className="px-2.5 py-1 rounded-md text-[12px] font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200" onClick={() => setStatusModal(selectedUnit)}>상태 변경</button>
