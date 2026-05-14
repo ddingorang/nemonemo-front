@@ -1,7 +1,8 @@
 // Created: 2026-04-08 23:13:24
 import axios from 'axios'
 
-const client = axios.create({ baseURL: 'http://15.164.32.21:8080/api' })
+const baseURL = import.meta.env.DEV ? '/api' : 'http://15.164.32.21:8080/api'
+const client = axios.create({ baseURL })
 
 client.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
