@@ -1,16 +1,23 @@
-// Updated: 2026-04-21
+// Updated: 2026-05-14
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import client from '../../api/client.js'
 
+// Design tokens (DESIGN.md)
+const FONT = "'Inter', 'SF Pro Display', system-ui, helvetica, sans-serif"
+const MONO = "'JetBrains Mono', 'SF Mono', menlo, monospace"
+const LIME  = '#dceeb1'
+const INK   = '#000000'
+const CANVAS = '#ffffff'
+const HAIR   = '#e6e6e6'
+const SURF   = '#f7f7f5'
+const ORANGE = '#f97316'
+
 const SIZES = ['XS', 'S', 'M', 'L', 'XL']
 const SIZE_COLOR = { XS: '#818cf8', S: '#4ade80', M: '#38bdf8', L: '#fb923c', XL: '#f43f5e' }
 
-const NAVY      = '#1a2238'
-const NAVY_DEEP = '#111827'
-
 const FIELD_CLASS =
-  'w-full px-3.5 py-3 border-[1.5px] border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none transition-all duration-200 focus:border-orange-500 focus:bg-white focus:ring-[5px] focus:ring-orange-500/12 placeholder:text-slate-400'
+  'w-full px-[12px] py-[8px] border border-[#e6e6e6] rounded-[8px] bg-white text-black outline-none transition-all duration-200 focus:border-black focus:ring-4 focus:ring-black/5 placeholder:text-[#999] text-[14px]'
 
 export default function InquiryPage() {
   const navigate = useNavigate()
@@ -65,17 +72,16 @@ export default function InquiryPage() {
   // ── Success Screen ──────────────────────────────────────────────────────
   if (submitted) {
     return (
-      <div className="min-h-screen flex justify-center items-center px-4 py-20" style={{ backgroundColor: '#f8fafc' }}>
-        <div className="text-center bg-white rounded-[20px] p-14 w-full max-w-[560px] shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_32px_rgba(0,0,0,0.08)]">
-          <div className="w-[72px] h-[72px] bg-green-100 rounded-full flex items-center justify-center text-[28px] text-green-600 mx-auto mb-6">✓</div>
-          <h2 className="text-[24px] font-extrabold tracking-tight mb-3">문의가 접수되었습니다</h2>
-          <p className="text-slate-500 text-[15px] leading-relaxed mb-9">담당자가 영업일 기준 1~2일 내로 연락드립니다.</p>
+      <div className="min-h-screen flex justify-center items-center px-4 py-12 bg-white" style={{ fontFamily: FONT }}>
+        <div className="text-center bg-[#dceeb1] rounded-[24px] p-[40px] w-full max-w-[500px]">
+          <div className="w-[56px] h-[56px] bg-white rounded-full flex items-center justify-center text-[24px] mx-auto mb-5">✓</div>
+          <h2 className="text-[32px] font-[340] tracking-[-0.64px] leading-[1.1] mb-3">문의가 접수되었습니다</h2>
+          <p className="text-black/60 text-[16px] font-[330] leading-[1.4] mb-7">담당자가 영업일 기준 1~2일 내로 연락드립니다.</p>
           <button
-            className="px-8 py-3.5 rounded-xl font-extrabold text-white text-[15px] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-            style={{ backgroundColor: '#f97316', boxShadow: '0 4px 16px rgba(249,115,22,0.35)' }}
+            className="px-[24px] py-[10px] rounded-full font-[480] text-white bg-black text-[16px] transition-all hover:opacity-80"
             onClick={() => navigate('/')}
           >
-            메인으로
+            메인으로 돌아가기
           </button>
         </div>
       </div>
@@ -84,242 +90,219 @@ export default function InquiryPage() {
 
   // ── Form ────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f8fafc', fontFamily: "'Pretendard', 'Apple SD Gothic Neo', sans-serif" }}>
-
-      {/* Header */}
-      <header className="sticky top-0 z-20 backdrop-blur-md border-b border-white/10" style={{ backgroundColor: NAVY }}>
-        <div className="max-w-[1160px] mx-auto px-8 h-[68px] flex items-center">
-          <button
-            className="flex items-center gap-2.5"
+    <div className="min-h-screen flex flex-col bg-white" style={{ fontFamily: FONT, color: INK }}>
+      
+      {/* Top Nav */}
+      <header className="sticky top-0 z-20 bg-white border-b border-[#e6e6e6] h-[52px]">
+        <div className="max-w-[1280px] mx-auto px-6 h-full flex items-center justify-between">
+          <button className="flex items-center gap-2" onClick={() => navigate('/')}>
+            <span className="w-[24px] h-[24px] rounded-[6px] bg-[#f97316] flex items-center justify-center text-white font-bold text-[11px]">N</span>
+            <span className="font-bold text-[16px] tracking-[-0.3px]">네모네모 스토리지</span>
+          </button>
+          <button 
+            className="px-[16px] py-[6px] rounded-full border border-[#e6e6e6] text-[13px] font-[500] hover:bg-[#f7f7f5] transition-colors"
             onClick={() => navigate('/')}
           >
-            <span className="w-8 h-8 rounded-md flex items-center justify-center text-white font-black text-sm" style={{ backgroundColor: '#f97316' }}>N</span>
-            <span className="text-white font-extrabold text-[17px] tracking-tight">네모네모 스토리지</span>
+            돌아가기
           </button>
         </div>
       </header>
 
-      {/* Form Card */}
-      <div className="flex justify-center items-start px-4 py-16 flex-1">
-        <div className="bg-white rounded-[20px] p-12 w-full max-w-[600px] shadow-[0_1px_3px_rgba(0,0,0,0.04),0_6px_28px_rgba(0,0,0,0.08)]">
+      {/* Main Content */}
+      <main className="flex-1 py-[40px] px-4 md:px-6">
+        <div className="max-w-[1000px] mx-auto">
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-[40px]">
+            
+            {/* Left Column: Intro */}
+            <div className="lg:col-span-5 flex flex-col justify-start pt-4">
+              <span style={{ fontFamily: MONO }} className="text-[12px] tracking-[0.5px] uppercase text-black/40 mb-4">Reservation</span>
+              <h1 className="text-[44px] md:text-[56px] font-[340] leading-[1.05] tracking-[-1.12px] mb-6">
+                나만의 창고,<br />문의하기
+              </h1>
+              <p className="text-[17px] font-[330] leading-[1.5] text-black/60 max-w-[340px]">
+                원하시는 유닛 또는 사이즈를 선택하고 문의를 남겨주세요. 빠르게 확인 후 연락드리겠습니다.
+              </p>
+            </div>
 
-          {/* Back */}
-          <button
-            className="flex items-center gap-1.5 text-slate-400 hover:text-slate-900 text-[13px] transition-colors mb-7"
-            onClick={() => navigate('/')}
-          >
-            ← 돌아가기
-          </button>
+            {/* Right Column: Form on Lime Block */}
+            <div className="lg:col-span-7">
+              <div className="bg-[#dceeb1] rounded-[24px] p-[24px] md:p-[32px]">
+                <form onSubmit={submit} className="space-y-[24px]">
+                  
+                  {/* Space Section */}
+                  <section>
+                    <label style={{ fontFamily: MONO }} className="block text-[10px] tracking-[0.5px] uppercase text-black/40 mb-3">Space Selection</label>
+                    
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <span className="text-[15px] font-[480]">희망 사이즈</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {SIZES.map((s) => {
+                            const active = form.desiredSize === s
+                            return (
+                              <button
+                                key={s}
+                                type="button"
+                                onClick={() => set('desiredSize', s)}
+                                className={`px-[16px] py-[6px] rounded-full text-[13px] font-[480] transition-all ${
+                                  active ? 'text-white' : 'bg-white text-black border border-transparent hover:border-[#e6e6e6]'
+                                }`}
+                                style={active ? { backgroundColor: SIZE_COLOR[s] } : {}}
+                              >
+                                {s}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
 
-          <h1 className="text-[26px] font-extrabold tracking-tight mb-2">예약 문의</h1>
-          <p className="text-slate-500 text-[15px] leading-relaxed mb-9">원하시는 유닛 또는 사이즈를 선택하고 문의를 남겨주세요.</p>
+                      <div className="space-y-2">
+                        <span className="text-[15px] font-[480]">특정 유닛 <span className="text-black/30 font-[320]">(선택)</span></span>
+                        <select
+                          className={FIELD_CLASS}
+                          value={form.unitId}
+                          onChange={(e) => set('unitId', e.target.value)}
+                        >
+                          <option value="">사이즈로만 문의하기</option>
+                          {units
+                            .filter((u) => u.size === form.desiredSize)
+                            .map((u) => (
+                              <option key={u.id} value={u.id}>
+                                {u.unitNumber} ({u.size})
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+                    </div>
+                  </section>
 
-          <form onSubmit={submit}>
-
-            {/* ── 공간 선택 ── */}
-            <fieldset className="border-none mb-10">
-              <legend className="w-full font-bold text-[13px] text-slate-500 uppercase tracking-widest border-b border-slate-100 pb-3 mb-6">
-                공간 선택
-              </legend>
-
-              {/* 희망 사이즈 */}
-              <div className="flex flex-col gap-2 mb-6">
-                <label className="text-[13px] font-semibold text-slate-700">희망 사이즈</label>
-                <div className="flex gap-2.5 flex-wrap">
-                  {SIZES.map((s) => {
-                    const active = form.desiredSize === s
-                    return (
-                      <label
-                        key={s}
-                        className="flex items-center gap-2 px-5 py-2.5 border-[1.5px] rounded-xl cursor-pointer transition-all font-semibold select-none"
-                        style={active ? {
-                          borderColor: SIZE_COLOR[s],
-                          backgroundColor: SIZE_COLOR[s] + '18',
-                          color: SIZE_COLOR[s],
-                          boxShadow: `0 0 0 3px ${SIZE_COLOR[s]}20`,
-                          fontWeight: 700,
-                        } : {
-                          borderColor: '#e2e8f0',
-                          backgroundColor: '#f8fafc',
-                          color: '#64748b',
-                        }}
-                      >
+                  {/* Customer Section */}
+                  <section>
+                    <label style={{ fontFamily: MONO }} className="block text-[10px] tracking-[0.5px] uppercase text-black/40 mb-3">Customer Info</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <span className="text-[15px] font-[480]">이름 *</span>
                         <input
-                          type="radio"
-                          className="hidden"
-                          name="desiredSize"
-                          value={s}
-                          checked={active}
-                          onChange={() => set('desiredSize', s)}
+                          required
+                          type="text"
+                          className={FIELD_CLASS}
+                          value={form.customerName}
+                          onChange={(e) => set('customerName', e.target.value)}
+                          placeholder="홍길동"
                         />
-                        {s}
-                      </label>
-                    )
-                  })}
-                </div>
-              </div>
+                      </div>
+                      <div className="space-y-2">
+                        <span className="text-[15px] font-[480]">연락처 *</span>
+                        <input
+                          required
+                          type="text"
+                          className={FIELD_CLASS}
+                          value={form.customerPhone}
+                          onChange={(e) => set('customerPhone', e.target.value)}
+                          placeholder="010-0000-0000"
+                        />
+                      </div>
+                      <div className="md:col-span-2 space-y-2">
+                        <span className="text-[15px] font-[480]">이메일 <span className="text-black/30 font-[320]">(선택)</span></span>
+                        <input
+                          type="email"
+                          className={FIELD_CLASS}
+                          value={form.customerEmail}
+                          onChange={(e) => set('customerEmail', e.target.value)}
+                          placeholder="example@email.com"
+                        />
+                      </div>
+                    </div>
+                  </section>
 
-              {/* 특정 유닛 선택 */}
-              <div className="flex flex-col gap-2">
-                <label className="text-[13px] font-semibold text-slate-700">
-                  특정 유닛 선택 <span className="font-normal text-slate-400">(선택)</span>
-                </label>
-                <select
-                  className={FIELD_CLASS}
-                  style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E\")", backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center', paddingRight: '36px', cursor: 'pointer', appearance: 'none' }}
-                  value={form.unitId}
-                  onChange={(e) => set('unitId', e.target.value)}
-                >
-                  <option value="">사이즈로만 문의하기</option>
-                  {units
-                    .filter((u) => u.size === form.desiredSize)
-                    .map((u) => (
-                      <option key={u.id} value={u.id}>
-                        {u.unitNumber} ({u.size})
-                      </option>
-                    ))}
-                </select>
-              </div>
-            </fieldset>
+                  {/* Usage Section */}
+                  <section>
+                    <label style={{ fontFamily: MONO }} className="block text-[10px] tracking-[0.5px] uppercase text-black/40 mb-3">Usage Details</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <span className="text-[15px] font-[480]">희망 시작일 *</span>
+                        <input
+                          required
+                          type="date"
+                          className={FIELD_CLASS}
+                          value={form.desiredStartDate}
+                          onChange={(e) => set('desiredStartDate', e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <span className="text-[15px] font-[480]">이용 기간 *</span>
+                        <div className="flex gap-1.5">
+                          <input
+                            required
+                            type="number"
+                            min={1}
+                            className={`${FIELD_CLASS} flex-1`}
+                            value={form.desiredDurationMonths}
+                            onChange={(e) => set('desiredDurationMonths', e.target.value)}
+                          />
+                          <div className="flex bg-white rounded-[8px] border border-[#e6e6e6] p-0.5">
+                            {['month', 'week'].map((u) => (
+                              <button
+                                key={u}
+                                type="button"
+                                onClick={() => { setDurationUnit(u); set('desiredDurationMonths', 1) }}
+                                className={`px-2.5 py-1 rounded-[6px] text-[12px] font-[500] transition-all ${
+                                  durationUnit === u ? 'text-white' : 'text-black hover:bg-[#f7f7f5]'
+                                }`}
+                                style={durationUnit === u ? { backgroundColor: ORANGE } : {}}
+                              >
+                                {u === 'month' ? '개월' : '주'}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="md:col-span-2 space-y-2">
+                        <span className="text-[15px] font-[480]">문의 내용 <span className="text-black/30 font-[320]">(선택)</span></span>
+                        <textarea
+                          rows={3}
+                          className={`${FIELD_CLASS} resize-none`}
+                          value={form.message}
+                          onChange={(e) => set('message', e.target.value)}
+                          placeholder="추가로 궁금하신 점이 있다면 적어주세요."
+                        />
+                      </div>
+                    </div>
+                  </section>
 
-            {/* ── 고객 정보 ── */}
-            <fieldset className="border-none mb-10">
-              <legend className="w-full font-bold text-[13px] text-slate-500 uppercase tracking-widest border-b border-slate-100 pb-3 mb-6">
-                고객 정보
-              </legend>
-
-              <div className="flex flex-col gap-2 mb-6">
-                <label className="text-[13px] font-semibold text-slate-700">이름 *</label>
-                <input
-                  required
-                  type="text"
-                  className={FIELD_CLASS}
-                  value={form.customerName}
-                  onChange={(e) => set('customerName', e.target.value)}
-                  placeholder="홍길동"
-                />
-              </div>
-              <div className="flex flex-col gap-2 mb-6">
-                <label className="text-[13px] font-semibold text-slate-700">연락처 *</label>
-                <input
-                  required
-                  type="text"
-                  className={FIELD_CLASS}
-                  value={form.customerPhone}
-                  onChange={(e) => set('customerPhone', e.target.value)}
-                  placeholder="010-0000-0000"
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-[13px] font-semibold text-slate-700">
-                  이메일 <span className="font-normal text-slate-400">(선택)</span>
-                </label>
-                <input
-                  type="email"
-                  className={FIELD_CLASS}
-                  value={form.customerEmail}
-                  onChange={(e) => set('customerEmail', e.target.value)}
-                  placeholder="example@email.com"
-                />
-              </div>
-            </fieldset>
-
-            {/* ── 이용 정보 ── */}
-            <fieldset className="border-none mb-10">
-              <legend className="w-full font-bold text-[13px] text-slate-500 uppercase tracking-widest border-b border-slate-100 pb-3 mb-6">
-                이용 정보
-              </legend>
-
-              <div className="flex flex-col gap-2 mb-6">
-                <label className="text-[13px] font-semibold text-slate-700">희망 시작일 *</label>
-                <input
-                  required
-                  type="date"
-                  className={FIELD_CLASS}
-                  value={form.desiredStartDate}
-                  onChange={(e) => set('desiredStartDate', e.target.value)}
-                />
-              </div>
-
-              <div className="flex flex-col gap-2 mb-6">
-                <label className="text-[13px] font-semibold text-slate-700">이용 기간 *</label>
-                <div className="flex items-center gap-3">
-                  <input
-                    required
-                    type="number"
-                    min={1}
-                    max={durationUnit === 'week' ? 52 : 60}
-                    className={`${FIELD_CLASS} w-24`}
-                    value={form.desiredDurationMonths}
-                    onChange={(e) => set('desiredDurationMonths', e.target.value)}
-                  />
-                  <div className="flex rounded-xl border-[1.5px] border-slate-200 overflow-hidden text-[13px] font-semibold">
-                    {[{ value: 'month', label: '개월' }, { value: 'week', label: '주' }].map(({ value, label }) => (
-                      <button
-                        key={value}
-                        type="button"
-                        className="px-4 py-2.5 transition-all"
-                        style={durationUnit === value
-                          ? { backgroundColor: '#f97316', color: '#fff' }
-                          : { backgroundColor: '#f8fafc', color: '#64748b' }}
-                        onClick={() => { setDurationUnit(value); set('desiredDurationMonths', 1) }}
-                      >
-                        {label}
-                      </button>
-                    ))}
+                  {/* Error & Submit */}
+                  <div className="pt-2">
+                    {error && (
+                      <div className="bg-red-50 text-red-600 p-3 rounded-[8px] mb-3 text-[12px] border border-red-100">
+                        {error}
+                      </div>
+                    )}
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full py-[12px] rounded-full text-white font-[480] text-[16px] transition-all hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      style={{ backgroundColor: ORANGE }}
+                    >
+                      {loading ? '제출 중...' : '문의 제출하기'}
+                    </button>
                   </div>
-                </div>
+                </form>
               </div>
+            </div>
 
-              <div className="flex flex-col gap-2">
-                <label className="text-[13px] font-semibold text-slate-700">
-                  문의 내용 <span className="font-normal text-slate-400">(선택)</span>
-                </label>
-                <textarea
-                  rows={5}
-                  className={`${FIELD_CLASS} resize-none`}
-                  value={form.message}
-                  onChange={(e) => set('message', e.target.value)}
-                  placeholder="추가로 문의하실 내용을 적어주세요."
-                />
-              </div>
-            </fieldset>
-
-            {/* Error */}
-            {error && (
-              <div className="text-red-600 text-[13px] mb-4 p-3.5 bg-red-50 rounded-xl border border-red-200">
-                {error}
-              </div>
-            )}
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 rounded-xl font-extrabold text-white text-[15px] transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
-              style={{ backgroundColor: '#f97316', boxShadow: '0 4px 16px rgba(249,115,22,0.35)' }}
-            >
-              {loading ? (
-                <>
-                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  제출 중...
-                </>
-              ) : (
-                <>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
-                  </svg>
-                  문의 제출
-                </>
-              )}
-            </button>
-
-          </form>
+          </div>
         </div>
-      </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="py-[40px] border-t border-[#e6e6e6]">
+        <div className="max-w-[1280px] mx-auto px-6 text-center">
+          <p style={{ fontFamily: MONO }} className="text-[11px] tracking-[0.5px] uppercase text-black/30">
+            © 2026 NEMONEMO STORAGE · ALL RIGHTS RESERVED
+          </p>
+        </div>
+      </footer>
     </div>
   )
 }
