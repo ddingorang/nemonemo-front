@@ -9,6 +9,12 @@ const STATUS_LABELS = { ACTIVE: '사용 중', EXPIRED: '만료', TERMINATED: '�
 const STATUS_CLASS = { ACTIVE: 'bg-green-100 text-green-700', EXPIRED: 'bg-slate-100 text-slate-500', TERMINATED: 'bg-red-100 text-red-500', AVAILABLE: 'bg-blue-100 text-blue-600', OCCUPIED: 'bg-green-100 text-green-700', RESERVED: 'bg-yellow-100 text-yellow-700', DISABLED: 'bg-slate-100 text-slate-500' }
 const SIZES = ['S', 'M', 'L', 'XL']
 const STATUSES = ['AVAILABLE', 'OCCUPIED', 'RESERVED', 'DISABLED']
+const STATUS_CONFIG = {
+  AVAILABLE: { symbol: '○', label: '비어있음', desc: '사용 가능', ring: 'border-emerald-400 bg-emerald-50 text-emerald-700', idle: 'border-slate-200 bg-white text-slate-600 hover:border-emerald-300 hover:bg-emerald-50/50' },
+  OCCUPIED:  { symbol: '●', label: '사용 중',  desc: '계약 진행 중', ring: 'border-blue-400 bg-blue-50 text-blue-700', idle: 'border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:bg-blue-50/50' },
+  RESERVED:  { symbol: '◑', label: '예약됨',  desc: '예약 접수됨', ring: 'border-amber-400 bg-amber-50 text-amber-700', idle: 'border-slate-200 bg-white text-slate-600 hover:border-amber-300 hover:bg-amber-50/50' },
+  DISABLED:  { symbol: '✕', label: '비활성화', desc: '임시 사용 불가', ring: 'border-slate-400 bg-slate-100 text-slate-600', idle: 'border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50' },
+}
 
 const SIZE_ORDER = ['XS', 'S', 'M', 'L', 'XL']
 const SIZE_COLOR = { XS: '#818cf8', S: '#4ade80', M: '#38bdf8', L: '#fb923c', XL: '#f43f5e' }
@@ -262,45 +268,55 @@ export default function UnitsPage() {
       />
 
       {modal === 'create' && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[4px]" onClick={() => setModal(null)}>
-          <div className="bg-white rounded-2xl overflow-hidden w-full max-w-[480px] max-h-[90vh] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]" onClick={(e) => e.stopPropagation()}>
-            <div className="h-1.5 bg-orange-500 shrink-0" />
-            <div className="p-8 overflow-y-auto">
-            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight flex items-center gap-2.5"><span className="w-1 h-5 bg-orange-500 rounded-full shrink-0" />유닛 추가</h2>
-            <div className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-2.5 items-center mb-5">
-              <label className="text-[13px] font-semibold text-slate-700">유닛 번호</label>
-              <input 
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
-                value={form.unitNumber} 
-                onChange={(e) => set('unitNumber', e.target.value)} 
-              />
-              <label className="text-[13px] font-semibold text-slate-700">사이즈</label>
-              <select
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
-                value={form.size}
-                onChange={(e) => set('size', e.target.value)}
-              >
-                {SIZES.map((s) => <option key={s}>{s}</option>)}
-              </select>
-              <label className="text-[13px] font-semibold text-slate-700">구역</label>
-              <input 
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
-                value={form.zone} 
-                onChange={(e) => set('zone', e.target.value)} 
-              />
-              <label className="text-[13px] font-semibold text-slate-700">월 임대료</label>
-              <input
-                type="text"
-                inputMode="numeric"
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
-                value={form.monthlyPrice ? Number(form.monthlyPrice).toLocaleString() : ''}
-                onChange={(e) => set('monthlyPrice', e.target.value.replace(/[^0-9]/g, ''))}
-              />
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4 backdrop-blur-sm" onClick={() => setModal(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-[440px] flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-slate-900 rounded-t-2xl px-7 py-5 shrink-0">
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500 mb-0.5">유닛 관리</p>
+              <h2 className="text-[19px] font-extrabold tracking-tight text-white">유닛 추가</h2>
             </div>
-            <div className="border-t border-slate-100 pt-5 mt-5 flex justify-end gap-2">
-              <button className="btn-ghost" onClick={() => setModal(null)}>취소</button>
-              <button className="btn-primary" onClick={saveCreate}>저장</button>
+            <div className="p-6 overflow-y-auto">
+              <div className="bg-slate-50 rounded-xl p-4 space-y-3">
+                <div>
+                  <label className="text-[10px] font-bold tracking-widest uppercase text-slate-400 block mb-1.5">유닛 번호</label>
+                  <input
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                    value={form.unitNumber}
+                    onChange={(e) => set('unitNumber', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold tracking-widest uppercase text-slate-400 block mb-1.5">사이즈</label>
+                  <select
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                    value={form.size}
+                    onChange={(e) => set('size', e.target.value)}
+                  >
+                    {SIZES.map((s) => <option key={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold tracking-widest uppercase text-slate-400 block mb-1.5">구역</label>
+                  <input
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                    value={form.zone}
+                    onChange={(e) => set('zone', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold tracking-widest uppercase text-slate-400 block mb-1.5">월 임대료</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                    value={form.monthlyPrice ? Number(form.monthlyPrice).toLocaleString() : ''}
+                    onChange={(e) => set('monthlyPrice', e.target.value.replace(/[^0-9]/g, ''))}
+                  />
+                </div>
+              </div>
             </div>
+            <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-2 shrink-0">
+              <button className="px-5 py-2 rounded-full text-[13px] font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all" onClick={() => setModal(null)}>취소</button>
+              <button className="px-6 py-2 rounded-full text-[13px] font-semibold bg-slate-900 text-white hover:bg-slate-700 transition-all" onClick={saveCreate}>저장</button>
             </div>
           </div>
         </div>
@@ -317,223 +333,281 @@ export default function UnitsPage() {
       )}
 
       {contractModal === 'edit' && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[4px]" onClick={() => setContractModal(null)}>
-          <div className="bg-white rounded-2xl overflow-hidden w-full max-w-[620px] max-h-[90vh] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]" onClick={(e) => e.stopPropagation()}>
-            <div className="h-1.5 bg-orange-500 shrink-0" />
-            <div className="p-8 overflow-y-auto">
-            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight flex items-center gap-2.5"><span className="w-1 h-5 bg-orange-500 rounded-full shrink-0" />계약 수정</h2>
-            <div className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-2.5 items-center mb-5">
-              <label className="text-[13px] font-semibold text-slate-700">고객명 *</label>
-              <input
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
-                value={contractForm.customerName}
-                onChange={(e) => setContract('customerName', e.target.value)}
-              />
-              <label className="text-[13px] font-semibold text-slate-700">연락처 *</label>
-              <input
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
-                value={contractForm.customerPhone}
-                onChange={(e) => setContract('customerPhone', e.target.value)}
-              />
-              <label className="text-[13px] font-semibold text-slate-700">주소</label>
-              <input
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
-                value={contractForm.customerAddress}
-                onChange={(e) => setContract('customerAddress', e.target.value)}
-              />
-              <label className="text-[13px] font-semibold text-slate-700">시작일 *</label>
-              <input
-                type="date"
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
-                value={contractForm.startDate}
-                onChange={(e) => setContract('startDate', e.target.value)}
-              />
-              <label className="text-[13px] font-semibold text-slate-700">종료일 *</label>
-              <div className="flex gap-1.5">
-                <input
-                  type="date"
-                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px] min-w-0"
-                  value={contractForm.endDate}
-                  onChange={(e) => setContract('endDate', e.target.value)}
-                />
-                {[1, 3, 6].map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    className="shrink-0 px-2.5 py-1 rounded-md border-[1.5px] border-slate-200 bg-slate-50 text-[12px] font-semibold text-slate-600 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                    disabled={!contractForm.endDate}
-                    onClick={() => extendEndDate(m)}
-                  >
-                    +{m}개월
-                  </button>
-                ))}
-              </div>
-              <label className="text-[13px] font-semibold text-slate-700">계약 금액 *</label>
-              <input
-                type="text"
-                inputMode="numeric"
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
-                value={contractForm.totalPrice ? Number(contractForm.totalPrice).toLocaleString() : ''}
-                onChange={(e) => setContract('totalPrice', e.target.value.replace(/[^0-9]/g, ''))}
-              />
-              <label className="text-[13px] font-semibold text-slate-700">기타</label>
-              <textarea
-                rows={3}
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px] resize-none"
-                value={contractForm.memo}
-                onChange={(e) => setContract('memo', e.target.value)}
-                placeholder="기타 사항을 입력하세요"
-              />
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4 backdrop-blur-sm" onClick={() => setContractModal(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-[560px] max-h-[90vh] flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-slate-900 rounded-t-2xl px-7 py-5 shrink-0">
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500 mb-0.5">계약 관리</p>
+              <h2 className="text-[19px] font-extrabold tracking-tight text-white">계약 수정</h2>
             </div>
-            <div className="border-t border-slate-100 pt-5 mt-5 flex justify-end gap-2">
-              <button className="btn-ghost" onClick={() => setContractModal(null)}>취소</button>
-              <button className="btn-primary" onClick={() => setConfirmModal({
+            <div className="p-6 overflow-y-auto flex-1 space-y-4">
+              <div>
+                <p className="text-[10px] font-bold tracking-widest uppercase text-slate-400 mb-2">고객 정보</p>
+                <div className="bg-slate-50 rounded-xl p-4 space-y-3">
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1.5">고객명 *</label>
+                    <input
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                      value={contractForm.customerName}
+                      onChange={(e) => setContract('customerName', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1.5">연락처 *</label>
+                    <input
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                      value={contractForm.customerPhone}
+                      onChange={(e) => setContract('customerPhone', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1.5">주소</label>
+                    <input
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                      value={contractForm.customerAddress}
+                      onChange={(e) => setContract('customerAddress', e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold tracking-widest uppercase text-slate-400 mb-2">계약 기간</p>
+                <div className="bg-slate-50 rounded-xl p-4 space-y-3">
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1.5">시작일 *</label>
+                    <input
+                      type="date"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                      value={contractForm.startDate}
+                      onChange={(e) => setContract('startDate', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1.5">종료일 *</label>
+                    <div className="flex gap-1.5">
+                      <input
+                        type="date"
+                        className="flex-1 min-w-0 bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                        value={contractForm.endDate}
+                        onChange={(e) => setContract('endDate', e.target.value)}
+                      />
+                      {[1, 3, 6].map((m) => (
+                        <button
+                          key={m}
+                          type="button"
+                          className="shrink-0 px-3 py-2 rounded-lg border border-slate-200 bg-white text-[12px] font-semibold text-slate-500 hover:border-orange-400 hover:text-orange-500 hover:bg-orange-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                          disabled={!contractForm.endDate}
+                          onClick={() => extendEndDate(m)}
+                        >+{m}M</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold tracking-widest uppercase text-slate-400 mb-2">금액</p>
+                <div className="bg-slate-50 rounded-xl p-4">
+                  <label className="text-[11px] font-semibold text-slate-400 block mb-1.5">계약 금액 *</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                    value={contractForm.totalPrice ? Number(contractForm.totalPrice).toLocaleString() : ''}
+                    onChange={(e) => setContract('totalPrice', e.target.value.replace(/[^0-9]/g, ''))}
+                  />
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold tracking-widest uppercase text-slate-400 mb-2">기타</p>
+                <div className="bg-slate-50 rounded-xl p-4">
+                  <textarea
+                    rows={3}
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all resize-none"
+                    value={contractForm.memo}
+                    onChange={(e) => setContract('memo', e.target.value)}
+                    placeholder="기타 사항을 입력하세요"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-2 shrink-0">
+              <button className="px-5 py-2 rounded-full text-[13px] font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all" onClick={() => setContractModal(null)}>취소</button>
+              <button className="px-6 py-2 rounded-full text-[13px] font-semibold bg-slate-900 text-white hover:bg-slate-700 transition-all" onClick={() => setConfirmModal({
                 message: '계약 정보를 저장하시겠습니까?',
                 confirmLabel: '저장',
                 confirmClass: 'bg-orange-500 hover:bg-orange-600',
                 onConfirm: async () => { setConfirmModal(null); await saveContractEdit() },
               })}>저장</button>
             </div>
-            </div>
           </div>
         </div>
       )}
 
       {contractModal === 'create' && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[4px]" onClick={() => setContractModal(null)}>
-          <div className="bg-white rounded-2xl overflow-hidden w-full max-w-[620px] max-h-[90vh] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]" onClick={(e) => e.stopPropagation()}>
-            <div className="h-1.5 bg-orange-500 shrink-0" />
-            <div className="p-8 overflow-y-auto">
-            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight flex items-center gap-2.5"><span className="w-1 h-5 bg-orange-500 rounded-full shrink-0" />새로운 계약</h2>
-            <div className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-2.5 items-start mb-5">
-              <label className="text-[13px] font-semibold text-slate-700 pt-2">유닛 *</label>
-              <select
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
-                value={contractForm.unitId}
-                onChange={(e) => setContract('unitId', e.target.value)}
-              >
-                <option value="">유닛 선택</option>
-                {units.filter((u) => u.status === 'AVAILABLE').sort((a, b) => a.unitNumber.localeCompare(b.unitNumber)).map((u) => (
-                  <option key={u.id} value={u.id}>{u.unitNumber} ({u.size})</option>
-                ))}
-              </select>
-              <label className="text-[13px] font-semibold text-slate-700 pt-2">고객명 *</label>
-              <input
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
-                value={contractForm.customerName}
-                onChange={(e) => setContract('customerName', e.target.value)}
-                placeholder="홍길동"
-              />
-              <label className="text-[13px] font-semibold text-slate-700 pt-2">연락처 *</label>
-              <input
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
-                value={contractForm.customerPhone}
-                onChange={(e) => setContract('customerPhone', e.target.value)}
-                placeholder="010-0000-0000"
-              />
-              <label className="text-[13px] font-semibold text-slate-700 pt-2">주소</label>
-              <input
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
-                value={contractForm.customerAddress}
-                onChange={(e) => setContract('customerAddress', e.target.value)}
-                placeholder="서울시 강남구 ..."
-              />
-              <label className="text-[13px] font-semibold text-slate-700 pt-2">시작일 *</label>
-              <div className="flex gap-1.5">
-                <input
-                  type="date"
-                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px] min-w-0"
-                  value={contractForm.startDate}
-                  onChange={(e) => setContract('startDate', e.target.value)}
-                />
-                {[1, 3, 6, 12].map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    className="shrink-0 px-2.5 py-1 rounded-md border-[1.5px] border-slate-200 bg-slate-50 text-[12px] font-semibold text-slate-600 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                    disabled={!contractForm.startDate}
-                    onClick={() => applyDuration(m)}
-                  >
-                    {m}개월
-                  </button>
-                ))}
-              </div>
-              <label className="text-[13px] font-semibold text-slate-700 pt-2">종료일 *</label>
-              <input
-                type="date"
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px]"
-                value={contractForm.endDate}
-                onChange={(e) => setContract('endDate', e.target.value)}
-              />
-              <label className="text-[13px] font-semibold text-slate-700 pt-2">계약 금액 *</label>
-              <div className="flex gap-1.5">
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px] min-w-0"
-                  value={contractForm.totalPrice ? Number(contractForm.totalPrice).toLocaleString() : ''}
-                  onChange={(e) => setContract('totalPrice', e.target.value.replace(/[^0-9]/g, ''))}
-                  placeholder="0"
-                />
-                {[10, 15, 20].map((rate) => (
-                  <button
-                    key={rate}
-                    type="button"
-                    className="shrink-0 px-2.5 py-1 rounded-md border-[1.5px] border-slate-200 bg-slate-50 text-[12px] font-semibold text-slate-600 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                    disabled={!contractForm.totalPrice}
-                    onClick={() => setContract('totalPrice', String(Math.round(Number(contractForm.totalPrice) * (1 - rate / 100))))}
-                  >
-                    -{rate}%
-                  </button>
-                ))}
-              </div>
-              <label className="text-[13px] font-semibold text-slate-700 pt-2">기타</label>
-              <textarea
-                rows={3}
-                className="border-[1.5px] border-slate-200 rounded-lg p-2 px-3 outline-none transition-all w-full focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50 text-[13px] resize-none"
-                value={contractForm.memo}
-                onChange={(e) => setContract('memo', e.target.value)}
-                placeholder="기타 사항을 입력하세요"
-              />
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4 backdrop-blur-sm" onClick={() => setContractModal(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-[560px] max-h-[90vh] flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-slate-900 rounded-t-2xl px-7 py-5 shrink-0">
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500 mb-0.5">계약 관리</p>
+              <h2 className="text-[19px] font-extrabold tracking-tight text-white">새로운 계약</h2>
             </div>
-            <div className="border-t border-slate-100 pt-5 mt-5 flex justify-end gap-2">
-              <button className="btn-ghost" onClick={() => setContractModal(null)}>취소</button>
-              <button className="btn-primary" onClick={() => setConfirmModal({
+            <div className="p-6 overflow-y-auto flex-1 space-y-4">
+              <div>
+                <p className="text-[10px] font-bold tracking-widest uppercase text-slate-400 mb-2">고객 정보</p>
+                <div className="bg-slate-50 rounded-xl p-4 space-y-3">
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1.5">유닛 *</label>
+                    <select
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                      value={contractForm.unitId}
+                      onChange={(e) => setContract('unitId', e.target.value)}
+                    >
+                      <option value="">유닛 선택</option>
+                      {units.filter((u) => u.status === 'AVAILABLE').sort((a, b) => a.unitNumber.localeCompare(b.unitNumber)).map((u) => (
+                        <option key={u.id} value={u.id}>{u.unitNumber} ({u.size})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1.5">고객명 *</label>
+                    <input
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                      value={contractForm.customerName}
+                      onChange={(e) => setContract('customerName', e.target.value)}
+                      placeholder="홍길동"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1.5">연락처 *</label>
+                    <input
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                      value={contractForm.customerPhone}
+                      onChange={(e) => setContract('customerPhone', e.target.value)}
+                      placeholder="010-0000-0000"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1.5">주소</label>
+                    <input
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                      value={contractForm.customerAddress}
+                      onChange={(e) => setContract('customerAddress', e.target.value)}
+                      placeholder="서울시 강남구 ..."
+                    />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold tracking-widest uppercase text-slate-400 mb-2">계약 기간</p>
+                <div className="bg-slate-50 rounded-xl p-4 space-y-3">
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1.5">시작일 *</label>
+                    <div className="flex gap-1.5">
+                      <input
+                        type="date"
+                        className="flex-1 min-w-0 bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                        value={contractForm.startDate}
+                        onChange={(e) => setContract('startDate', e.target.value)}
+                      />
+                      {[1, 3, 6, 12].map((m) => (
+                        <button
+                          key={m}
+                          type="button"
+                          className="shrink-0 px-2.5 py-2 rounded-lg border border-slate-200 bg-white text-[12px] font-semibold text-slate-500 hover:border-orange-400 hover:text-orange-500 hover:bg-orange-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                          disabled={!contractForm.startDate}
+                          onClick={() => applyDuration(m)}
+                        >{m}M</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1.5">종료일 *</label>
+                    <input
+                      type="date"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                      value={contractForm.endDate}
+                      onChange={(e) => setContract('endDate', e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold tracking-widest uppercase text-slate-400 mb-2">금액</p>
+                <div className="bg-slate-50 rounded-xl p-4">
+                  <label className="text-[11px] font-semibold text-slate-400 block mb-1.5">계약 금액 *</label>
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      className="flex-1 min-w-0 bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                      value={contractForm.totalPrice ? Number(contractForm.totalPrice).toLocaleString() : ''}
+                      onChange={(e) => setContract('totalPrice', e.target.value.replace(/[^0-9]/g, ''))}
+                      placeholder="0"
+                    />
+                    {[10, 15, 20].map((rate) => (
+                      <button
+                        key={rate}
+                        type="button"
+                        className="shrink-0 px-3 py-2 rounded-lg border border-slate-200 bg-white text-[12px] font-semibold text-slate-500 hover:border-orange-400 hover:text-orange-500 hover:bg-orange-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                        disabled={!contractForm.totalPrice}
+                        onClick={() => setContract('totalPrice', String(Math.round(Number(contractForm.totalPrice) * (1 - rate / 100))))}
+                      >-{rate}%</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold tracking-widest uppercase text-slate-400 mb-2">기타</p>
+                <div className="bg-slate-50 rounded-xl p-4">
+                  <textarea
+                    rows={3}
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all resize-none"
+                    value={contractForm.memo}
+                    onChange={(e) => setContract('memo', e.target.value)}
+                    placeholder="기타 사항을 입력하세요"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-2 shrink-0">
+              <button className="px-5 py-2 rounded-full text-[13px] font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all" onClick={() => setContractModal(null)}>취소</button>
+              <button className="px-6 py-2 rounded-full text-[13px] font-semibold bg-slate-900 text-white hover:bg-slate-700 transition-all" onClick={() => setConfirmModal({
                 message: '새로운 계약을 저장하시겠습니까?',
                 confirmLabel: '저장',
                 confirmClass: 'bg-orange-500 hover:bg-orange-600',
                 onConfirm: async () => { setConfirmModal(null); await saveNewContract() },
               })}>저장</button>
             </div>
-            </div>
           </div>
         </div>
       )}
 
       {statusModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[4px]" onClick={() => setStatusModal(null)}>
-          <div className="bg-white rounded-2xl overflow-hidden w-full max-w-[480px] shadow-[0_20px_60px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]" onClick={(e) => e.stopPropagation()}>
-            <div className="h-1.5 bg-orange-500" />
-            <div className="p-8">
-            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight flex items-center gap-2.5"><span className="w-1 h-5 bg-orange-500 rounded-full shrink-0" />{statusModal.unitNumber} 상태 변경</h2>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {STATUSES.map((s) => (
-                <button
-                  key={s}
-                  className={`px-4 py-2 rounded-lg border-[1.5px] transition-all text-[13px] font-semibold ${
-                    statusModal.status === s
-                      ? 'bg-orange-500 text-white border-orange-500'
-                      : 'bg-white text-slate-700 border-slate-200 hover:border-orange-500 hover:text-orange-500'
-                  }`}
-                  onClick={() => changeStatus(statusModal.unitId, s)}
-                >
-                  {STATUS_LABELS[s]}
-                </button>
-              ))}
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4 backdrop-blur-sm" onClick={() => setStatusModal(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-[380px] flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-slate-900 rounded-t-2xl px-7 py-5 shrink-0">
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500 mb-0.5">유닛 상태</p>
+              <h2 className="text-[19px] font-extrabold tracking-tight text-white">{statusModal.unitNumber}</h2>
             </div>
-            <div className="border-t border-slate-100 pt-5 mt-5 flex justify-end">
-              <button className="btn-ghost" onClick={() => setStatusModal(null)}>닫기</button>
+            <div className="p-5">
+              <div className="grid grid-cols-2 gap-2.5">
+                {STATUSES.map((s) => {
+                  const cfg = STATUS_CONFIG[s]
+                  const active = statusModal.status === s
+                  return (
+                    <button
+                      key={s}
+                      className={`rounded-xl border-2 p-4 text-left transition-all ${active ? cfg.ring : cfg.idle}`}
+                      onClick={() => changeStatus(statusModal.unitId, s)}
+                    >
+                      <span className="text-[18px] block mb-1 leading-none">{cfg.symbol}</span>
+                      <span className="text-[13px] font-bold block">{cfg.label}</span>
+                      <span className="text-[11px] opacity-60 block mt-0.5">{cfg.desc}</span>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
+            <div className="px-5 py-4 border-t border-slate-100 flex justify-end shrink-0">
+              <button className="px-5 py-2 rounded-full text-[13px] font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all" onClick={() => setStatusModal(null)}>닫기</button>
             </div>
           </div>
         </div>

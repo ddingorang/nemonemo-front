@@ -88,30 +88,40 @@ export default function InquiriesPage() {
       )}
 
       {detailModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-[4px]" onClick={() => setDetailModal(null)}>
-          <div className="bg-white rounded-2xl overflow-hidden w-full max-w-[620px] max-h-[90vh] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]" onClick={(e) => e.stopPropagation()}>
-            <div className="h-1.5 bg-orange-500 shrink-0" />
-            <div className="p-8 overflow-y-auto">
-            <h2 className="text-[18px] font-extrabold mb-6 tracking-tight flex items-center gap-2.5"><span className="w-1 h-5 bg-orange-500 rounded-full shrink-0" />문의 상세 <span className="text-slate-400 font-bold">#{detailModal.id}</span></h2>
-            <div className="grid grid-cols-[110px_1fr] gap-x-3 gap-y-2.5 mb-5 text-[13px]">
-              <span className="font-semibold text-slate-500">고객명</span><span>{detailModal.customerName}</span>
-              <span className="font-semibold text-slate-500">연락처</span><span>{detailModal.customerPhone}</span>
-              <span className="font-semibold text-slate-500">이메일</span><span>{detailModal.customerEmail ?? '-'}</span>
-              <span className="font-semibold text-slate-500">희망 사이즈</span><span>{detailModal.desiredSize}</span>
-              <span className="font-semibold text-slate-500">지정 유닛</span><span>{detailModal.unitNumber ?? '-'}</span>
-              <span className="font-semibold text-slate-500">희망 시작일</span><span>{detailModal.desiredStartDate}</span>
-              <span className="font-semibold text-slate-500">이용 기간</span><span>{detailModal.desiredDurationMonths}개월</span>
-              <span className="font-semibold text-slate-500">문의 내용</span><span>{detailModal.message ?? '-'}</span>
-              <span className="font-semibold text-slate-500">상태</span>
-              <span>
-                <div className="inline-flex flex-wrap gap-2">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4 backdrop-blur-sm" onClick={() => setDetailModal(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-[560px] max-h-[90vh] flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-slate-900 rounded-t-2xl px-7 py-5 shrink-0">
+              <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500 mb-0.5">문의 관리 · #{detailModal.id}</p>
+              <h2 className="text-[19px] font-extrabold tracking-tight text-white">{detailModal.customerName}</h2>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1 space-y-4">
+              <div>
+                <p className="text-[10px] font-bold tracking-widest uppercase text-slate-400 mb-2">고객 정보</p>
+                <div className="bg-slate-50 rounded-xl p-4 grid grid-cols-[90px_1fr] gap-x-3 gap-y-2 text-[13px]">
+                  <span className="font-semibold text-slate-400">연락처</span><span>{detailModal.customerPhone}</span>
+                  <span className="font-semibold text-slate-400">이메일</span><span>{detailModal.customerEmail ?? '-'}</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold tracking-widest uppercase text-slate-400 mb-2">문의 내용</p>
+                <div className="bg-slate-50 rounded-xl p-4 grid grid-cols-[90px_1fr] gap-x-3 gap-y-2 text-[13px]">
+                  <span className="font-semibold text-slate-400">희망 사이즈</span><span>{detailModal.desiredSize}</span>
+                  <span className="font-semibold text-slate-400">지정 유닛</span><span>{detailModal.unitNumber ?? '-'}</span>
+                  <span className="font-semibold text-slate-400">희망 시작일</span><span>{detailModal.desiredStartDate}</span>
+                  <span className="font-semibold text-slate-400">이용 기간</span><span>{detailModal.desiredDurationMonths}개월</span>
+                  <span className="font-semibold text-slate-400">문의 내용</span><span className="leading-relaxed">{detailModal.message ?? '-'}</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold tracking-widest uppercase text-slate-400 mb-2">처리 상태</p>
+                <div className="flex flex-wrap gap-2">
                   {STATUSES.map((s) => (
                     <button
                       key={s}
-                      className={`px-2.5 py-1 rounded-md text-[12px] font-semibold border-[1.5px] transition-all ${
+                      className={`px-4 py-2 rounded-full text-[12px] font-semibold border-2 transition-all ${
                         detailModal.status === s
-                          ? 'bg-orange-500 text-white border-orange-500'
-                          : 'bg-white text-slate-700 border-slate-200 hover:border-orange-500 hover:text-orange-500'
+                          ? 'bg-slate-900 text-white border-slate-900'
+                          : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
                       }`}
                       onClick={() => changeStatus(detailModal.id, s)}
                     >
@@ -119,22 +129,23 @@ export default function InquiriesPage() {
                     </button>
                   ))}
                 </div>
-              </span>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold tracking-widest uppercase text-slate-400 mb-2">관리자 메모</p>
+                <div className="bg-slate-50 rounded-xl p-4">
+                  <textarea
+                    rows={3}
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 transition-all resize-none mb-2.5"
+                    value={memoValue}
+                    onChange={(e) => setMemoValue(e.target.value)}
+                  />
+                  <button className="px-4 py-1.5 rounded-full text-[12px] font-semibold bg-slate-900 text-white hover:bg-slate-700 transition-all" onClick={saveMemo}>메모 저장</button>
+                </div>
+              </div>
             </div>
-            <div className="border-t border-slate-100 pt-5 mb-4">
-              <label className="text-[13px] font-semibold block mb-2 text-slate-700">관리자 메모</label>
-              <textarea 
-                rows={3} 
-                className="w-full border-[1.5px] border-slate-200 rounded-lg p-3.5 outline-none resize-vertical text-[13px] mb-2 focus:border-orange-500 focus:bg-white focus:ring-[6px] focus:ring-orange-500/15 bg-slate-50"
-                value={memoValue} 
-                onChange={(e) => setMemoValue(e.target.value)} 
-              />
-              <button className="btn-sm btn-edit" onClick={saveMemo}>메모 저장</button>
-            </div>
-            <div className="border-t border-slate-100 pt-5 mt-2 flex justify-between items-center">
-              <button className="btn-sm btn-delete" onClick={() => deleteInquiry(detailModal.id)}>삭제</button>
-              <button className="btn-ghost" onClick={() => setDetailModal(null)}>닫기</button>
-            </div>
+            <div className="px-6 py-4 border-t border-slate-100 flex justify-between items-center shrink-0">
+              <button className="px-4 py-2 rounded-full text-[13px] font-semibold text-red-500 border border-red-200 hover:bg-red-50 transition-all" onClick={() => deleteInquiry(detailModal.id)}>삭제</button>
+              <button className="px-5 py-2 rounded-full text-[13px] font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all" onClick={() => setDetailModal(null)}>닫기</button>
             </div>
           </div>
         </div>
